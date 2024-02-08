@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+
 import UploadForm from './components/UploadForm';
 import Uploads from './components/Upload';
 import axios from 'axios';
+import './App.css'
+import {NextUIProvider} from "@nextui-org/react";
 
 function App() {
   const [uploads, setUploads] = useState([]);
@@ -26,11 +28,12 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Art Collaboration Platform</h1>
+    <NextUIProvider>
+          <main className="dark text-foreground bg-background">
       <UploadForm onSuccess={handleUploadSuccess} />
       <Uploads uploads={uploads} />
-    </div>
+    </main>
+    </NextUIProvider>
   );
 }
 
