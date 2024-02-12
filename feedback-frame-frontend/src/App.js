@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { firestore } from '../firebaseConfig'; // Adjust path as necessary
-import { collection, query, getDocs } from "../firebaseConfig/firestore";
+import { firestore } from './firebaseConfig'; // Adjust path as necessary
+
 import UploadForm from './components/UploadForm';
 import Uploads from './components/Upload';
 import axios from 'axios';
