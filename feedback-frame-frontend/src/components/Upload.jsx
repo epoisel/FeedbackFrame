@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import { firestore } from '../firebaseConfig'; // Adjust the import path as necessary
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { Button, Card, CardHeader, CardBody, Image, CardFooter, ButtonGroup, Slider} from '@nextui-org/react';
