@@ -9,6 +9,8 @@ const cors = require('cors');
 app.use(cors());
 // Enable express to parse JSON body content
 app.use(express.json());
+const admin = require('firebase-admin');
+const serviceAccount = require('path/to/serviceAccountKey.json');
 
 
 app.use((req, res, next) => {
@@ -21,7 +23,10 @@ app.use((req, res, next) => {
 const UPLOADS_METADATA_FILE = path.join(__dirname, 'uploads.json');
 
 
-
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+   
+  });
 
 
 // Define allowed file types
