@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage, firestore } from './firebase'; // Adjust the import path as necessary
-import { collection, addDoc } from "firebase/firestore";
+import { storage, firestore } from './firebaseConfig'; // Adjust the import path as necessary
+import { collection, addDoc } from "./firebaseConfig/firestore";
 import { Button, Input, Select, SelectItem  } from '@nextui-org/react';
 
 function UploadForm() {
