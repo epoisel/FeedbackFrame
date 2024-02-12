@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage, firestore } from './firebase'; // Adjust the import path as necessary
+import { collection, addDoc } from "firebase/firestore";
 import { Button, Input, Select, SelectItem  } from '@nextui-org/react';
 
 function UploadForm() {
@@ -14,17 +17,27 @@ function UploadForm() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('artwork', artwork);
-    formData.append('preview', preview);
-    formData.append('user', user);
-
+    // Assume `user` is determined by the authenticated user's info
+    const artworkRef = ref(storage, `artworks/${artwork.name}`);
+    const previewRef = ref(storage, `previews/${preview.name}`);
+    
     try {
-      await axios.post('http://localhost:3000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      // Upload files to Firebase Storage
+      await uploadBytes(artworkRef, artwork);
+      await uploadBytes(previewRef, preview);
+      
+      // Get download URLs
+      const artworkUrl = await getDownloadURL(artworkRef);
+      const previewUrl = await getDownloadURL(previewRef);
+      
+      // Save metadata in Firestore
+      await addDoc(collection(firestore, "uploads"), {
+        user,
+        artworkUrl,
+        previewUrl,
+        timestamp: new Date(),
       });
+      
       alert('File uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);

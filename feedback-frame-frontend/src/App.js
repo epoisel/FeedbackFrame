@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
+import { firestore } from './firebase'; // Adjust path as necessary
+import { collection, query, getDocs } from "firebase/firestore";
 import UploadForm from './components/UploadForm';
 import Uploads from './components/Upload';
 import axios from 'axios';
@@ -10,11 +11,14 @@ function App() {
   const [uploads, setUploads] = useState([]);
 
   const fetchUploads = async () => {
+    // Initialize a query against the "uploads" collection
+    const q = query(collection(firestore, "uploads"));
     try {
-      const response = await axios.get('http://localhost:3000/uploads');
-      setUploads(response.data);
+      const querySnapshot = await getDocs(q);
+      const uploadsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUploads(uploadsData);
     } catch (error) {
-      console.error('Error fetching uploads:', error);
+      console.error('Error fetching uploads from Firestore:', error);
     }
   };
 
@@ -23,16 +27,15 @@ function App() {
   }, []);
 
   const handleUploadSuccess = () => {
-    // Refresh uploads data after successful upload
     fetchUploads();
   };
 
   return (
     <NextUIProvider>
-          <main className="dark text-foreground bg-background">
-      <UploadForm onSuccess={handleUploadSuccess} />
-      <Uploads uploads={uploads} />
-    </main>
+      <main className="dark text-foreground bg-background">
+        <UploadForm onSuccess={handleUploadSuccess} />
+        <Uploads uploads={uploads} />
+      </main>
     </NextUIProvider>
   );
 }

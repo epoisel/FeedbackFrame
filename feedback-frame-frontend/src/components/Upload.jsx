@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useEffect, useState } from 'react';
+import { firestore } from './firebase'; // Adjust the import path as necessary
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { Button, Card, CardHeader, CardBody, Image, CardFooter, ButtonGroup, Slider} from '@nextui-org/react';
 
 function Uploads() {
@@ -9,42 +11,16 @@ function Uploads() {
 
   useEffect(() => {
     const fetchUploads = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/uploads');
-        setUploads(response.data);
-  
-        // Construct a new currentIndex state
-        const newUserIndices = response.data.reduce((acc, upload) => {
-          acc[upload.user] = 0; // Initialize index for each user
-          return acc;
-        }, {});
-  
-        setCurrentIndex(newUserIndices); // Update the state once with the new indices
-      } catch (error) {
-        console.error('Error fetching uploads:', error);
-      }
+      const q = query(collection(firestore, "uploads"), where("user", "==", user)); // Adjust based on how you manage users
+      const querySnapshot = await getDocs(q);
+      const uploadsData = querySnapshot.docs.map(doc => doc.data());
+      setUploads(uploadsData);
     };
+    
     fetchUploads();
   }, []);
-  
 
-  // const goToNext = (user) => {
-  //   setCurrentIndex(prevIndex => ({
-  //     ...prevIndex,
-  //     [user]: prevIndex[user] === uploads.filter(upload => upload.user === user).length - 1
-  //       ? 0
-  //       : prevIndex[user] + 1
-  //   }));
-  // };
-
-  // const goToPrevious = (user) => {
-  //   setCurrentIndex(prevIndex => ({
-  //     ...prevIndex,
-  //     [user]: prevIndex[user] === 0
-  //       ? uploads.filter(upload => upload.user === user).length - 1
-  //       : prevIndex[user] - 1
-  //   }));
-  // };
+ 
 
   const handleSliderChange = (user, value) => {
     setCurrentIndex(prevIndex => ({
