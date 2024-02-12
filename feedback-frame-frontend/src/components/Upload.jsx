@@ -1,48 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { firestore } from '../firebaseConfig'; // Adjust the import path as necessary
+import { firestore, auth } from '../firebaseConfig'; // Make sure this path is correct
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { Button, Card, CardHeader, CardBody, Image, CardFooter, ButtonGroup, Slider} from '@nextui-org/react';
+import { onAuthStateChanged } from "firebase/auth";
+import { Button, Card, CardHeader, CardBody, Image, CardFooter, Slider} from '@nextui-org/react';
 
 function Uploads() {
   const [uploads, setUploads] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState({ 'User 1': 0, 'User 2': 0 });
+  const [currentIndex, setCurrentIndex] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    const fetchUploads = async () => {
-      const q = query(collection(firestore, "uploads"), where("user", "==", user)); // Adjust based on how you manage users
-      const querySnapshot = await getDocs(q);
-      const uploadsData = querySnapshot.docs.map(doc => doc.data());
-      setUploads(uploadsData);
-    };
+    // Listen for auth state changes to get the current user
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (user) {
+        fetchUploads(user.uid); // Use UID as the user identifier
+      } else {
+        setUploads([]); // Clear uploads if no user is signed in
+      }
+    });
     
-    fetchUploads();
+    return () => unsubscribe(); // Clean up subscription
   }, []);
 
- 
+  const fetchUploads = async (userId) => {
+    const q = query(collection(firestore, "uploads"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    const uploadsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    setUploads(uploadsData);
+    // Reset currentIndex for the new set of uploads
+    const newIndices = uploadsData.reduce((acc, upload, index) => {
+      acc[upload.userId] = 0; // Initialize at 0 for each user
+      return acc;
+    }, {});
+    setCurrentIndex(newIndices);
+  };
 
-  const handleSliderChange = (user, value) => {
+  const handleSliderChange = (userId, value) => {
     setCurrentIndex(prevIndex => ({
       ...prevIndex,
-      [user]: value,
+      [userId]: value,
     }));
   };
 
-
-  const renderSlideshow = (user) => {
-    const userUploads = uploads.filter(upload => upload.user === user);
+  const renderSlideshow = (userId) => {
+    const userUploads = uploads.filter(upload => upload.userId === userId);
     if (userUploads.length === 0) {
-      return <div>No uploads found for {user}.</div>;
+      return <div>No uploads found.</div>;
     }
-    const safeIndex = Math.min(currentIndex[user], userUploads.length - 1);
+    const safeIndex = Math.min(currentIndex[userId] || 0, userUploads.length - 1);
     const currentUpload = userUploads[safeIndex];
 
     return (
       <Card>
         <CardHeader>
-          <h4>Uploaded by: {user}</h4>
+          <h4>Uploaded by: {userId}</h4>
         </CardHeader>
-        <CardBody css={{ d: "flex", flexDirection: user === 'User 1' ? "row" : "row-reverse", alignItems: "center", gap: "20px" }}>
+        <CardBody css={{ d: "flex", flexDirection: "row", alignItems: "center", gap: "20px" }}>
           <Slider   
             size="sm"
             color="foreground"
@@ -52,14 +67,13 @@ function Uploads() {
             min={0}
             max={userUploads.length - 1}
             value={safeIndex}
-            onChange={(value) => handleSliderChange(user, value)}
+            onChange={(value) => handleSliderChange(userId, value)}
           />
           <Image
-            src={`http://localhost:3000/uploads/${currentUpload.preview}`} 
+            src={currentUpload.preview} // Assuming 'preview' is the URL
             alt="Artwork preview"
             width={1000}
             height={1000}
-            css={{  }}
           />
         </CardBody>
       </Card>
@@ -68,11 +82,8 @@ function Uploads() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-      {['User 1', 'User 2'].map(user => (
-        <div key={user}>
-          {renderSlideshow(user)}
-        </div>
-      ))}
+      {/* Render slideshow for the current user only */}
+      {currentUser && renderSlideshow(currentUser.uid)}
     </div>
   );
 }
