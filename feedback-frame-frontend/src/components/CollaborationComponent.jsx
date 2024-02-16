@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Input, Button, Loading } from '@nextui-org/react';
+import { Input, Button, CircularProgress } from '@nextui-org/react';
 import { firestore, auth } from '../firebaseConfig'; // Ensure these are correctly imported
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 
@@ -68,7 +68,7 @@ const CollaborationComponent = ({ uploadId }) => {
         onClick={handleInvite}
         disabled={loading}
       >
-        {loading ? <Loading type="points" color="currentColor" size="sm" /> : 'Invite Collaborator'}
+        {loading ? <CircularProgress aria-label="Loading..." /> : 'Invite Collaborator'}
       </Button>
     </div>
   );
