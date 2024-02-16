@@ -24,8 +24,8 @@ function Uploads() {
   }, []);
 
   const fetchCollaborations = async (userId) => {
-    const ownedCollabs = query(collection(firestore, "collaborations"), where("ownerId", "==", userId));
-    const partOfCollabs = query(collection(firestore, "collaborations"), where("collaborators", "array-contains", userId));
+    const ownedCollabs = query(collection(firestore, "Collaborations Collection"), where("ownerId", "==", userId));
+    const partOfCollabs = query(collection(firestore, "Collaborations Collection"), where("collaborators", "array-contains", userId));
     const ownedSnap = await getDocs(ownedCollabs);
     const partSnap = await getDocs(partOfCollabs);
     
