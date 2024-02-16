@@ -39,7 +39,7 @@ const CollaborationComponent = ({ uploadId }) => {
           status: 'pending'
           
         });
-        console.log(senderId);   
+           
         alert("Collaborator invited successfully.");
         setLoading(false);
       });
@@ -49,7 +49,7 @@ const CollaborationComponent = ({ uploadId }) => {
       setLoading(false);
     }
   };
-
+  console.log(senderId);
   return (
     <div>
       <Input
