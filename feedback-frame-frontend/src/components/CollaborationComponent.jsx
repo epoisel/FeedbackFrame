@@ -16,7 +16,7 @@ const CollaborationComponent = ({ uploadId }) => {
     setLoading(true);
 
     // Query users collection to find user by email
-    const usersRef = collection(firestore, "users");
+    const usersRef = collection(firestore, "Users Collection");
     const q = query(usersRef, where("email", "==", email));
 
     try {
@@ -32,7 +32,7 @@ const CollaborationComponent = ({ uploadId }) => {
         const receiverId = doc.id;
 
         // Create an invite in the collaborationInvites collection
-        await addDoc(collection(firestore, "collaborationInvites"), {
+        await addDoc(collection(firestore, "collaboration  Invites"), {
           senderId: auth.currentUser.uid,
           receiverId: receiverId,
           uploadId: uploadId,
