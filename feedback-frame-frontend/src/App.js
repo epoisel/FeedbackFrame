@@ -7,6 +7,7 @@ import Uploads from './components/Upload';
 import SignIn from './components/SignIn'; // Adjust the path as necessary
 import SignOut from './components/SignOut'; // Adjust the path as necessary
 import PasswordReset from './components/PasswordReset'; // Adjust the path as necessary
+
 import SignUp from './components/SignUp'; // Adjust the path as necessary
 import {NextUIProvider} from "@nextui-org/react";
 import './App.css';
