@@ -33,4 +33,3 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export {  useAuth };
