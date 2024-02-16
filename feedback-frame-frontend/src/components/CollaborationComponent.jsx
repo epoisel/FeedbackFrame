@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Button, Loading } from '@nextui-org/react';
-import { firestore, auth } from './firebaseConfig'; // Ensure these are correctly imported
+import { firestore, auth } from '../firebaseConfig'; // Ensure these are correctly imported
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 
 const CollaborationComponent = ({ uploadId }) => {
