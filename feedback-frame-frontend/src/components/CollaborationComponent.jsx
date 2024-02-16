@@ -14,42 +14,53 @@ const CollaborationComponent = ({ uploadId }) => {
     }
 
     setLoading(true);
+    console.log("Loading set to true");
 
     // Query users collection to find user by email
-    const usersRef = collection(firestore, "users ");
+    const usersRef = collection(firestore, "users");
     const q = query(usersRef, where("email", "==", email));
+    console.log("Querying for user with email:", email);
 
     try {
       const querySnapshot = await getDocs(q);
+      console.log("Query snapshot:", querySnapshot);
+
       if (querySnapshot.empty) {
+        console.log("No user found with that email.");
         alert("No user found with that email.");
         setLoading(false);
         return;
       }
 
       querySnapshot.forEach(async (doc) => {
-        // Assuming the first match is the user we want
+        console.log("Document found with ID:", doc.id, "and data:", doc.data());
         const receiverId = doc.id;
 
         // Create an invite in the collaborationInvites collection
+        console.log("Sending invite with:", {
+          senderId: auth.currentUser.uid,
+          receiverId: receiverId,
+          uploadId: uploadId,
+          status: 'pending'
+        });
+
         await addDoc(collection(firestore, "collaborationInvites"), {
           senderId: auth.currentUser.uid,
           receiverId: receiverId,
           uploadId: uploadId,
           status: 'pending'
-          
         });
            
         alert("Collaborator invited successfully.");
         setLoading(false);
       });
     } catch (error) {
-      console.error("Error inviting collaborator:", error);
+      console.error("Error inviting collaborator with email " + email + ":", error);
       alert("Failed to invite collaborator.");
       setLoading(false);
     }
   };
-  console.log(senderId);
+  
   return (
     <div>
       <Input
@@ -60,7 +71,10 @@ const CollaborationComponent = ({ uploadId }) => {
         size="lg"
         placeholder="Collaborator's email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          console.log("Email set to:", e.target.value);
+        }}
         disabled={loading}
       />
       <Button
@@ -74,6 +88,5 @@ const CollaborationComponent = ({ uploadId }) => {
     </div>
   );
 };
-
 
 export default CollaborationComponent;
