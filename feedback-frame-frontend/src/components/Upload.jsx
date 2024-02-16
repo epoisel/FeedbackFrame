@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { firestore, auth } from '../firebaseConfig'; // Adjust this path as needed
-import { collection, query, where, getDocs, onAuthStateChanged } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { Button, Card, CardHeader, CardBody, Image, CardFooter, Slider } from '@nextui-org/react';
 
 function Uploads() {
