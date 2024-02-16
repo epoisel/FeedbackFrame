@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { firestore } from './firebaseConfig'; // Adjust import path as necessary
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { Input, Button, Loading } from '@nextui-org/react';
+import { firestore, auth } from './firebaseConfig'; // Ensure these are correctly imported
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 
-const CollaborationComponent = ({ currentUser }) => {
+const CollaborationComponent = ({ uploadId }) => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleInvite = async () => {
     if (!email) {
@@ -11,32 +13,66 @@ const CollaborationComponent = ({ currentUser }) => {
       return;
     }
 
-    // Example: Create or update a collaboration session
-    // This simplistic example assumes a single collaboration document per user
-    const collabRef = doc(collection(firestore, "collaborations"), currentUser.uid);
+    setLoading(true);
+
+    // Query users collection to find user by email
+    const usersRef = collection(firestore, "users");
+    const q = query(usersRef, where("email", "==", email));
+
     try {
-      await updateDoc(collabRef, {
-        ownerId: currentUser.uid,
-        collaborators: firestore.FieldValue.arrayUnion(email)
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        alert("No user found with that email.");
+        setLoading(false);
+        return;
+      }
+
+      querySnapshot.forEach(async (doc) => {
+        // Assuming the first match is the user we want
+        const receiverId = doc.id;
+
+        // Create an invite in the collaborationInvites collection
+        await addDoc(collection(firestore, "collaborationInvites"), {
+          senderId: auth.currentUser.uid,
+          receiverId: receiverId,
+          uploadId: uploadId,
+          status: 'pending'
+        });
+
+        alert("Collaborator invited successfully.");
+        setLoading(false);
       });
-      alert("Collaborator invited successfully.");
     } catch (error) {
       console.error("Error inviting collaborator:", error);
       alert("Failed to invite collaborator.");
+      setLoading(false);
     }
   };
 
   return (
     <div>
-      <input
-        type="email"
+      <Input
+        clearable
+        bordered
+        fullWidth
+        color="primary"
+        size="lg"
+        placeholder="Collaborator's email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Collaborator's email"
+        disabled={loading}
       />
-      <button onClick={handleInvite}>Invite Collaborator</button>
+      <Button
+        auto
+        color="primary"
+        onClick={handleInvite}
+        disabled={loading}
+      >
+        {loading ? <Loading type="points" color="currentColor" size="sm" /> : 'Invite Collaborator'}
+      </Button>
     </div>
   );
 };
+
 
 export default CollaborationComponent;

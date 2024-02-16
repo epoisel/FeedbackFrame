@@ -44,6 +44,7 @@ function App() {
             <SignOut />
             <UploadForm onSuccess={handleUploadSuccess} />
             <Uploads uploads={uploads} />
+            <CollaborationComponent uploadId="your-upload-id" />
           </>
         ) : (
           <>
