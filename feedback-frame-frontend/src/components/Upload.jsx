@@ -1,89 +1,110 @@
 import React, { useState, useEffect } from 'react';
-import { firestore, auth } from '../firebaseConfig'; // Make sure this path is correct
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { Button, Card, CardHeader, CardBody, Image, CardFooter, Slider} from '@nextui-org/react';
+import { firestore, auth } from '../firebaseConfig'; // Adjust this path as needed
+import { collection, query, where, getDocs, onAuthStateChanged } from "firebase/firestore";
+import { Button, Card, CardHeader, CardBody, Image, CardFooter, Slider } from '@nextui-org/react';
 
 function Uploads() {
-  const [uploads, setUploads] = useState([]);
+  const [uploads, setUploads] = useState({});
   const [currentIndex, setCurrentIndex] = useState({});
   const [currentUser, setCurrentUser] = useState(null);
+  const [collaborations, setCollaborations] = useState([]);
 
   useEffect(() => {
-    // Listen for auth state changes to get the current user
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
-        fetchUploads(user.uid); // Use UID as the user identifier
+        await fetchCollaborations(user.uid);
       } else {
-        setUploads([]); // Clear uploads if no user is signed in
+        setUploads({});
+        setCollaborations([]);
       }
     });
-    
-    return () => unsubscribe(); // Clean up subscription
+    return () => unsubscribe();
   }, []);
 
-  const fetchUploads = async (userId) => {
-    const q = query(collection(firestore, "uploads"), where("userId", "==", userId));
-    const querySnapshot = await getDocs(q);
-    const uploadsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const fetchCollaborations = async (userId) => {
+    const ownedCollabs = query(collection(firestore, "collaborations"), where("ownerId", "==", userId));
+    const partOfCollabs = query(collection(firestore, "collaborations"), where("collaborators", "array-contains", userId));
+    const ownedSnap = await getDocs(ownedCollabs);
+    const partSnap = await getDocs(partOfCollabs);
     
+    let collabIds = [];
+    ownedSnap.forEach(doc => {
+      collabIds.push(doc.id);
+    });
+    partSnap.forEach(doc => {
+      if (!collabIds.includes(doc.id)) {
+        collabIds.push(doc.id);
+      }
+    });
+    setCollaborations(collabIds);
+    await fetchUploadsForCollaborations(collabIds);
+  };
+
+  const fetchUploadsForCollaborations = async (collabIds) => {
+    let uploadsData = {};
+    for (let collabId of collabIds) {
+      const q = query(collection(firestore, "uploads"), where("collabId", "==", collabId));
+      const querySnapshot = await getDocs(q);
+      uploadsData[collabId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
     setUploads(uploadsData);
-    // Reset currentIndex for the new set of uploads
-    const newIndices = uploadsData.reduce((acc, upload, index) => {
-      acc[upload.userId] = 0; // Initialize at 0 for each user
-      return acc;
-    }, {});
+    resetCurrentIndex(uploadsData);
+  };
+
+  const resetCurrentIndex = (uploadsData) => {
+    let newIndices = {};
+    Object.keys(uploadsData).forEach(collabId => {
+      newIndices[collabId] = 0;
+    });
     setCurrentIndex(newIndices);
   };
 
-  const handleSliderChange = (userId, value) => {
+  const handleSliderChange = (collabId, value) => {
     setCurrentIndex(prevIndex => ({
       ...prevIndex,
-      [userId]: value,
+      [collabId]: value,
     }));
   };
 
-  const renderSlideshow = (userId) => {
-    const userUploads = uploads.filter(upload => upload.userId === userId);
-    if (userUploads.length === 0) {
-      return <div>No uploads found.</div>;
-    }
-    const safeIndex = Math.min(currentIndex[userId] || 0, userUploads.length - 1);
-    const currentUpload = userUploads[safeIndex];
-
-    return (
-      <Card>
+  const renderSlideshow = (collabId) => {
+    const collabUploads = uploads[collabId] || [];
+    return collabUploads.map((upload, index) => (
+      <Card key={index}>
         <CardHeader>
-          <h4>Uploaded by: {userId}</h4>
+          <h4>Uploaded by: {upload.userId}</h4>
         </CardHeader>
         <CardBody css={{ d: "flex", flexDirection: "row", alignItems: "center", gap: "20px" }}>
-          <Slider   
+          <Slider
             size="sm"
             color="foreground"
             step={1}
             showMarkers={true}
             defaultValue={0}
             min={0}
-            max={userUploads.length - 1}
-            value={safeIndex}
-            onChange={(value) => handleSliderChange(userId, value)}
+            max={collabUploads.length - 1}
+            value={currentIndex[collabId] || 0}
+            onChange={(value) => handleSliderChange(collabId, value)}
           />
           <Image
-            src={currentUpload.preview} // Assuming 'preview' is the URL
+            src={upload.preview} // Assuming 'preview' is the URL
             alt="Artwork preview"
             width={1000}
             height={1000}
           />
         </CardBody>
       </Card>
-    );
+    ));
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-      {/* Render slideshow for the current user only */}
-      {currentUser && renderSlideshow(currentUser.uid)}
+    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexDirection: 'column' }}>
+      {collaborations.map((collabId) => (
+        <div key={collabId}>
+          {/* Render slideshow for each collaboration */}
+          {renderSlideshow(collabId)}
+        </div>
+      ))}
     </div>
   );
 }
