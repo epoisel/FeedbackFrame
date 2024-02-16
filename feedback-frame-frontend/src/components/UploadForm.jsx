@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '../AuthContext'; // Adjust path as necessary
+import { useAuth } from '../AuthContext';
 import { storage, firestore } from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
@@ -8,7 +8,7 @@ import { Button, Input } from '@nextui-org/react';
 function UploadForm() {
   const [artwork, setArtwork] = useState(null);
   const [preview, setPreview] = useState(null);
-  const { currentUser } = useContext(AuthContext); // Assuming AuthContext is set up
+  const { currentUser } = useAuth();
 
   const handleUpload = async (e) => {
     e.preventDefault();
