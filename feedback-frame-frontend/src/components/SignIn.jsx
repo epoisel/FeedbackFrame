@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { auth } from '../firebaseConfig'; // adjust path as necessary
+import { auth, firestore } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, updateDoc } from "firebase/firestore";
 
 function SignIn() {
   const [email, setEmail] = useState('');
@@ -10,11 +11,13 @@ function SignIn() {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Signed in:', userCredential.user);
-      // Redirect to dashboard or home page here
+      // Update last login date in Firestore
+      await updateDoc(doc(firestore, "users", userCredential.user.uid), {
+        lastLogin: new Date(),
+      });
+      console.log('Signed in and last login updated:', userCredential.user);
     } catch (error) {
       console.error('Error signing in:', error.message);
-      // Handle errors here
     }
   };
 

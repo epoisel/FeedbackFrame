@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { auth } from '../firebaseConfig'; // adjust path as necessary
+import { auth, firestore } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from "firebase/firestore";
 
 function SignUp() {
   const [email, setEmail] = useState('');
@@ -10,11 +11,14 @@ function SignUp() {
     e.preventDefault();
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Account created:', userCredential.user);
-      // Redirect to dashboard or home page here
+      // Store user data in Firestore
+      await setDoc(doc(firestore, "users", userCredential.user.uid), {
+        email: email,
+        // Add any additional fields here
+      });
+      console.log('Account created and user data stored in Firestore:', userCredential.user);
     } catch (error) {
       console.error('Error signing up:', error.message);
-      // Handle errors here, such as displaying a notification
     }
   };
 
