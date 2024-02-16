@@ -32,7 +32,7 @@ const CollaborationComponent = ({ uploadId }) => {
         const receiverId = doc.id;
 
         // Create an invite in the collaborationInvites collection
-        await addDoc(collection(firestore, "collaboration  Invites"), {
+        await addDoc(collection(firestore, "Collaboration  Invites"), {
           senderId: auth.currentUser.uid,
           receiverId: receiverId,
           uploadId: uploadId,
