@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { firestore } from './firebaseConfig'; // Adjust path as necessary
+import { firestore, auth } from './firebaseConfig'; // Ensure auth is exported from firebaseConfig
 import { collection, query, getDocs } from "firebase/firestore";
+import { useAuthState } from 'react-firebase-hooks/auth'; // This needs to be installed
 import UploadForm from './components/UploadForm';
 import Uploads from './components/Upload';
-import axios from 'axios';
-import './App.css'
+import SignIn from './components/SignIn'; // Adjust the path as necessary
+import SignOut from './components/SignOut'; // Adjust the path as necessary
+import PasswordReset from './components/PasswordReset'; // Adjust the path as necessary
+import SignUp from './components/SignUp'; // Adjust the path as necessary
 import {NextUIProvider} from "@nextui-org/react";
+import './App.css';
 
 function App() {
+  const [user] = useAuthState(auth);
   const [uploads, setUploads] = useState([]);
 
   const fetchUploads = async () => {
@@ -33,8 +38,19 @@ function App() {
   return (
     <NextUIProvider>
       <main className="dark text-foreground bg-background">
-        <UploadForm onSuccess={handleUploadSuccess} />
-        <Uploads uploads={uploads} />
+        {user ? (
+          <>
+            <SignOut />
+            <UploadForm onSuccess={handleUploadSuccess} />
+            <Uploads uploads={uploads} />
+          </>
+        ) : (
+          <>
+            <SignIn />
+            <SignUp />
+            {/* Consider where to place PasswordReset if needed */}
+          </>
+        )}
       </main>
     </NextUIProvider>
   );
