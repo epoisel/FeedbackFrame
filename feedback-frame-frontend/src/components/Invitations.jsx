@@ -9,29 +9,31 @@ function Invitations() {
   useEffect(() => {
     const userId = auth.currentUser?.uid;
     if (!userId) return;
-
+  
     const q = query(collection(firestore, "collaborationInvites"), where("receiverId", "==", userId));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const invites = [];
-      querySnapshot.docs.forEach(async (document) => {
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      const fetchInvites = querySnapshot.docs.map(async (document) => {
         const inviteData = document.data();
         try {
           const senderDocRef = doc(firestore, "users", inviteData.senderId);
           const senderDoc = await getDoc(senderDocRef);
           if (senderDoc.exists()) {
             const senderInfo = senderDoc.data();
-            invites.push({ id: document.id, ...inviteData, senderName: senderInfo.name || senderInfo.email });
+            return { id: document.id, ...inviteData, senderName: senderInfo.name || senderInfo.email };
           } else {
             console.log("Sender does not exist.");
+            return null; // Skip invites where sender info can't be fetched
           }
         } catch (error) {
           console.error("Error fetching sender details:", error);
+          return null; // Skip on error
         }
-        // This line needs to be inside the forEach loop but use a technique that waits for all promises before setting state
       });
-      Promise.all(invites).then(setInvitations); // Ensure all async operations complete before setting state
+  
+      const resolvedInvites = await Promise.all(fetchInvites);
+      setInvitations(resolvedInvites.filter(invite => invite !== null)); // Update state with non-null invites
     });
-
+  
     return () => unsubscribe();
   }, []);
 
