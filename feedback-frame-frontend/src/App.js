@@ -46,8 +46,7 @@ function App() {
             <UploadForm onSuccess={handleUploadSuccess} />
             <Uploads uploads={uploads} />
             <CollaborationComponent uploadId="your-upload-id" />
-            <Invitations />
-        
+            <Invitations />       
           </>
         ) : (
           <>
