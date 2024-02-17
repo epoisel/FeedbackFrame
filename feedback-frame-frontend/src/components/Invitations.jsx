@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { auth, firestore } from './firebaseConfig'; // Adjust import paths as necessary
+import { auth, firestore } from '../firebaseConfig'; // Adjust import paths as necessary
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { Card, Text, Button, Spacer } from '@nextui-org/react';
 
