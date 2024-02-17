@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { auth, firestore } from '../firebaseConfig'; // Adjust import paths as necessary
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { Card, Text, Button, Spacer } from '@nextui-org/react';
+import { Card, Textarea, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
   const [invitations, setInvitations] = useState([]);
@@ -54,11 +54,11 @@ function Invitations() {
 
   return (
     <div>
-      <Text h3>Invitations</Text>
+      <Textarea h3>Invitations</Textarea>
       {invitations.length > 0 ? (
         invitations.map((invite) => (
           <Card key={invite.id} css={{ mb: '$5' }}>
-            <Text size={16}>Invitation from user {invite.senderId} for upload {invite.uploadId}</Text>
+            <Textarea size={16}>Invitation from user {invite.senderId} for upload {invite.uploadId}</Textarea>
             <Spacer y={0.5} />
             <Button auto color="primary" onClick={() => acceptInvitation(invite.id)}>Accept</Button>
             <Spacer x={0.5} inline />
@@ -66,7 +66,7 @@ function Invitations() {
           </Card>
         ))
       ) : (
-        <Text>No invitations found.</Text>
+        <Textarea>No invitations found.</Textarea>
       )}
     </div>
   );
