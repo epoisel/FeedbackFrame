@@ -9,7 +9,7 @@ import SignOut from './components/SignOut'; // Adjust the path as necessary
 import PasswordReset from './components/PasswordReset'; // Adjust the path as necessary
 import SignUp from './components/SignUp'; // Adjust the path as necessary
 import CollaborationComponent from './components/CollaborationComponent';
-import { Invitations } from './components/Invitations'; // Adjust the import path as necessary
+import  Invitations  from './components/Invitations'; // Adjust the import path as necessary
 import {NextUIProvider} from "@nextui-org/react";
 import './App.css';
 
