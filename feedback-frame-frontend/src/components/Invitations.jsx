@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { auth, firestore } from '../firebaseConfig'; // Adjust import paths as necessary
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
 import { Card, Textarea, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
