@@ -71,8 +71,8 @@ function Invitations() {
           {!acceptanceStatus[invite.id] && (
             <Button onClick={() => acceptInvitation(invite.id, invite.senderId, invite.uploadId)}>Accept</Button>
           )}
-          {acceptanceStatus[invite.id] === 'Accepted' && <Text color="success">You have accepted this invitation.</Text>}
-          {acceptanceStatus[invite.id] === 'Error' && <Text color="error">Error accepting invitation.</Text>}
+          {acceptanceStatus[invite.id] === 'Accepted' && <div color="success">You have accepted this invitation.</div>}
+          {acceptanceStatus[invite.id] === 'Error' && <div color="error">Error accepting invitation.</div>}
           <Spacer x={0.5} inline />
           <Button onClick={() => console.log("Decline invitation")}>Decline</Button>
         </Card>
