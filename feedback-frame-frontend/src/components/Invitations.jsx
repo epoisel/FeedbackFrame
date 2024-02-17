@@ -58,7 +58,15 @@ function Invitations() {
       {invitations.length > 0 ? (
         invitations.map((invite) => (
           <Card key={invite.id} css={{ mb: '$5' }}>
-            <Textarea size={16}>Invitation from user {invite.senderId} for upload {invite.uploadId}</Textarea>
+            <Textarea isReadOnly
+                label="Description"
+                variant="bordered"
+                labelPlacement="outside"
+                placeholder="Enter your description"
+                defaultValue="NextUI is a React UI library that provides a set of accessible, reusable, and beautiful components."
+                className="max-w-xs"size={16}>
+                    Invitation from user {invite.senderId} for upload {invite.uploadId}
+            </Textarea>
             <Spacer y={0.5} />
             <Button auto color="primary" onClick={() => acceptInvitation(invite.id)}>Accept</Button>
             <Spacer x={0.5} inline />
