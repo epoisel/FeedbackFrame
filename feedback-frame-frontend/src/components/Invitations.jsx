@@ -13,36 +13,39 @@ function Invitations() {
 
     // Query for invitations where the current user is the receiver
     const q = query(collection(firestore, "collaborationInvites"), where("receiverId", "==", userId));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const invites = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+    const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      const invitesData = await Promise.all(querySnapshot.docs.map(async (doc) => {
+        const invite = { id: doc.id, ...doc.data() };
+        // Fetch sender's details
+        const senderDoc = await getDoc(doc(firestore, "users", invite.senderId));
+        if (senderDoc.exists()) {
+          const senderData = senderDoc.data();
+          return { ...invite, senderName: senderData.name || senderData.email }; // Prefer name, fallback to email
+        }
+        return invite;
       }));
-      setInvitations(invites);
+      setInvitations(invitesData);
     });
 
     // Cleanup listener on component unmount
     return () => unsubscribe();
   }, []);
 
-  // Handle accepting an invitation
   const acceptInvitation = async (inviteId) => {
     try {
-      // Update the invitation status to 'accepted'
+      // Accept the invitation
       await updateDoc(doc(firestore, "collaborationInvites", inviteId), {
         status: 'accepted'
       });
       console.log("Invitation accepted successfully");
-      // Further logic to handle post-acceptance actions (e.g., adding to collaborators)
+      // Implement logic for starting/joining a collaboration here
     } catch (error) {
       console.error("Error accepting invitation: ", error);
     }
   };
 
-  // Handle declining an invitation
   const declineInvitation = async (inviteId) => {
     try {
-      // Update the invitation status to 'declined'
       await updateDoc(doc(firestore, "collaborationInvites", inviteId), {
         status: 'declined'
       });
@@ -58,7 +61,7 @@ function Invitations() {
       {invitations.length > 0 ? (
         invitations.map((invite) => (
           <Card key={invite.id} css={{ mb: '$5' }}>
-            <div size={16}>Invitation from user {invite.senderId} for upload {invite.uploadId}</div>
+            <div size={16}>Invitation from {invite.senderName}</div>
             <Spacer y={0.5} />
             <Button auto color="primary" onClick={() => acceptInvitation(invite.id)}>Accept</Button>
             <Spacer x={0.5} inline />
