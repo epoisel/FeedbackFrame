@@ -5,6 +5,7 @@ import { Card, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
   const [invitations, setInvitations] = useState([]);
+  const [acceptanceStatus, setAcceptanceStatus] = useState({});
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
@@ -31,7 +32,7 @@ function Invitations() {
       });
   
       const resolvedInvites = await Promise.all(fetchInvites);
-      setInvitations(resolvedInvites.filter(invite => invite !== null)); // Update state with non-null invites
+      setInvitations(resolvedInvites.filter(invite => invite !== null));
     });
   
     return () => unsubscribe();
@@ -52,8 +53,10 @@ function Invitations() {
       });
   
       console.log("Collaboration initiated successfully");
+      setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Accepted'}));
     } catch (error) {
-      console.error("Error initiating collaboration: ", error);
+        console.error("Error initiating collaboration: ", error);
+        setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Error'}));
     }
   };
   
