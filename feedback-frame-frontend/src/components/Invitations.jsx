@@ -37,35 +37,26 @@ function Invitations() {
     return () => unsubscribe();
   }, []);
 
-  const acceptInvitation = async (inviteId, senderId, uploadId) => {
+  const acceptInvitation = async (inviteId, senderId) => {
     try {
       // Update the invitation status to 'accepted'
       await updateDoc(doc(firestore, "collaborationInvites", inviteId), { status: 'accepted' });
-
-      // Attempt to find an existing collaboration document
-      const collabQuery = query(collection(firestore, "collaborations"), where("uploadId", "==", uploadId));
-      const querySnapshot = await getDocs(collabQuery);
-
-      if (querySnapshot.empty) {
-        // Create a new collaboration document
-        await setDoc(doc(firestore, "collaborations"), {
-          ownerId: senderId,
-          collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
-          uploadId: uploadId
-        });
-      } else {
-        // Add the current user to the existing collaborators array
-        const collabDocRef = querySnapshot.docs[0].ref;
-        await updateDoc(collabDocRef, {
-          collaborators: arrayUnion(auth.currentUser.uid)
-        });
-      }
-
+  
+      // Create a new collaboration document without the need for an uploadId initially
+      const newCollabDocRef = doc(collection(firestore, "collaborations"));
+      await setDoc(newCollabDocRef, {
+        ownerId: senderId,
+        collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
+        // No uploadId initially. Can be added later when the collaboration has a specific upload to discuss or work on
+        hasStarted: false // This field can indicate that the collaboration is ready but not yet tied to a specific upload
+      });
+  
       console.log("Collaboration initiated successfully");
     } catch (error) {
       console.error("Error initiating collaboration: ", error);
     }
   };
+  
 
   return (
     <div>
