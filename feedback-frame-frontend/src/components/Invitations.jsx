@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { auth, firestore } from '../firebaseConfig'; // Adjust import paths as necessary
+import { auth, firestore } from '../firebaseConfig';
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, getDocs, setDoc, arrayUnion } from "firebase/firestore";
 import { Card, Button, Spacer } from '@nextui-org/react';
 
@@ -27,37 +27,38 @@ function Invitations() {
         } catch (error) {
           console.error("Error fetching sender details:", error);
         }
-        setInvitations(invites);
+        // This line needs to be inside the forEach loop but use a technique that waits for all promises before setting state
       });
+      Promise.all(invites).then(setInvitations); // Ensure all async operations complete before setting state
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Ensure to include async function inside useEffect or as a standalone function like this
   const acceptInvitation = async (inviteId, senderId, uploadId) => {
     try {
-      await updateDoc(doc(firestore, "collaborationInvites", inviteId), {
-        status: 'accepted'
-      });
-  
+      // Update the invitation status to 'accepted'
+      await updateDoc(doc(firestore, "collaborationInvites", inviteId), { status: 'accepted' });
+
+      // Attempt to find an existing collaboration document
       const collabQuery = query(collection(firestore, "collaborations"), where("uploadId", "==", uploadId));
       const querySnapshot = await getDocs(collabQuery);
+
       if (querySnapshot.empty) {
-        const newCollabDoc = doc(collection(firestore, "collaborations"));
-        await setDoc(newCollabDoc, {
-          collabId: newCollabDoc.id,
+        // Create a new collaboration document
+        await setDoc(doc(firestore, "collaborations"), {
           ownerId: senderId,
-          collaborators: [senderId, auth.currentUser.uid],
+          collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
           uploadId: uploadId
         });
       } else {
+        // Add the current user to the existing collaborators array
         const collabDocRef = querySnapshot.docs[0].ref;
         await updateDoc(collabDocRef, {
           collaborators: arrayUnion(auth.currentUser.uid)
         });
       }
-  
+
       console.log("Collaboration initiated successfully");
     } catch (error) {
       console.error("Error initiating collaboration: ", error);
@@ -66,21 +67,16 @@ function Invitations() {
 
   return (
     <div>
-      <div>Invitations</div>
-      {invitations.length > 0 ? (
-        invitations.map((invite) => (
-          <Card key={invite.id}>
-            <div>Invitation from {invite.senderName}</div>
-            <Spacer y={0.5} />
-            {/* Pass the necessary parameters to acceptInvitation when the button is clicked */}
-            <Button onClick={() => acceptInvitation(invite.id, invite.senderId, invite.uploadId)}>Accept</Button>
-            <Spacer x={0.5} inline />
-            <Button onClick={() => console.log("Decline invitation")}>Decline</Button>
-          </Card>
-        ))
-      ) : (
-        <div>No invitations found.</div>
-      )}
+      <h3>Invitations</h3>
+      {invitations.length > 0 ? invitations.map((invite) => (
+        <Card key={invite.id}>
+          <div>Invitation from {invite.senderName}</div>
+          <Spacer y={0.5} />
+          <Button onClick={() => acceptInvitation(invite.id, invite.senderId, invite.uploadId)}>Accept</Button>
+          <Spacer x={0.5} inline />
+          <Button onClick={() => console.log("Decline invitation")}>Decline</Button>
+        </Card>
+      )) : <div>No invitations found.</div>}
     </div>
   );
 }
