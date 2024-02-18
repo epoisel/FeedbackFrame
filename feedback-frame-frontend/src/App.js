@@ -11,6 +11,7 @@ import SignUp from './components/SignUp'; // Adjust the path as necessary
 import CollaborationComponent from './components/CollaborationComponent';
 import  Invitations  from './components/Invitations'; // Adjust the import path as necessary
 import CollaborationCards from './components/CollaborationCards';
+import CollaborationView from './components/CollaborationView'; 
 import {NextUIProvider} from "@nextui-org/react";
 import './App.css';
 

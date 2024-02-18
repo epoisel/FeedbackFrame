@@ -3,7 +3,7 @@ import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { Card, CardBody, CardFooter, Image } from '@nextui-org/react';
 
-function CollaborationCards({ userId }) {
+function CollaborationCards({ userId, onSelectCollab }) {
   const [collaborations, setCollaborations] = useState([]);
 
   useEffect(() => {
