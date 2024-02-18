@@ -6,7 +6,7 @@ import { Card, CardBody, CardFooter, Image } from '@nextui-org/react';
 
 function CollaborationCards({ userId, onSelectCollab }) {
   const [collaborations, setCollaborations] = useState([]);
-  const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchCollaborations = async () => {
