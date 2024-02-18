@@ -4,7 +4,8 @@ import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "fi
 import { Card, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
-  const [invitations, setInvitations] = useState([]);
+    const [invitations, setInvitations] = useState([]);
+    const [acceptanceStatus, setAcceptanceStatus] = useState({});
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
