@@ -1,52 +1,44 @@
 import React, { useState } from 'react';
 import { Input, Button, CircularProgress } from '@nextui-org/react';
-import { firestore, auth } from '../firebaseConfig'; // Ensure these are correctly imported
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { firestore, auth } from '../firebaseConfig';
+import { collection, addDoc, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 
 const CollaborationComponent = ({ uploadId }) => {
   const [email, setEmail] = useState('');
+  const [collabName, setCollabName] = useState(''); // State for collaboration name
   const [loading, setLoading] = useState(false);
 
   const handleInvite = async () => {
-    if (!email) {
-      alert("Please enter an email address for the collaborator.");
+    if (!email || !collabName) { // Check for collabName input as well
+      alert("Please enter both an email address and a name for the collaboration.");
       return;
     }
 
     setLoading(true);
-    console.log("Loading set to true");
 
-    // Query users collection to find user by email
     const usersRef = collection(firestore, "users");
     const q = query(usersRef, where("email", "==", email));
-    console.log("Querying for user with email:", email);
 
     try {
       const querySnapshot = await getDocs(q);
-      console.log("Query snapshot:", querySnapshot);
 
       if (querySnapshot.empty) {
-        console.log("No user found with that email.");
         alert("No user found with that email.");
         setLoading(false);
         return;
       }
 
-      querySnapshot.forEach(async (doc) => {
-        console.log("Document found with ID:", doc.id, "and data:", doc.data());
-        const receiverId = doc.id;
+      const senderDoc = await getDoc(doc(firestore, "users", auth.currentUser.uid)); // Fetch the sender's user document
+      const senderName = senderDoc.exists() ? senderDoc.data().name : "Unknown"; // Fallback to "Unknown" if not found
 
-        // Create an invite in the collaborationInvites collection
-        console.log("Sending invite with:", {
-          senderId: auth.currentUser.uid,
-          receiverId: receiverId,
-          uploadId: uploadId,
-          status: 'pending'
-        });
+      querySnapshot.forEach(async (doc) => {
+        const receiverId = doc.id;
 
         await addDoc(collection(firestore, "collaborationInvites"), {
           senderId: auth.currentUser.uid,
+          senderName: senderName, // Include the sender's name
           receiverId: receiverId,
+          collaborationName: collabName, // Include the collaboration name
           uploadId: uploadId,
           status: 'pending'
         });
@@ -55,7 +47,7 @@ const CollaborationComponent = ({ uploadId }) => {
         setLoading(false);
       });
     } catch (error) {
-      console.error("Error inviting collaborator with email " + email + ":", error);
+      console.error("Error inviting collaborator:", error);
       alert("Failed to invite collaborator.");
       setLoading(false);
     }
@@ -71,17 +63,26 @@ const CollaborationComponent = ({ uploadId }) => {
         size="lg"
         placeholder="Collaborator's email"
         value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          console.log("Email set to:", e.target.value);
-        }}
+        onChange={(e) => setEmail(e.target.value)}
+        disabled={loading}
+      />
+      {/* Collaboration Name Input */}
+      <Input
+        clearable
+        bordered
+        fullWidth
+        color="primary"
+        size="lg"
+        placeholder="Collaboration Name"
+        value={collabName}
+        onChange={(e) => setCollabName(e.target.value)}
         disabled={loading}
       />
       <Button
         auto
         color="primary"
         onClick={handleInvite}
-        disabled={loading}
+        disabled={loading || !email || !collabName} // Disable button if email or collabName is not provided
       >
         {loading ? <CircularProgress aria-label="Loading..." /> : 'Invite Collaborator'}
       </Button>

@@ -45,11 +45,19 @@ function App() {
         {user ? (
           <>
             <SignOut />
-            <Invitations />
-            <CollaborationCards userId={user.uid} onSelectCollab={setSelectedCollabId} />
-            <UploadForm onSuccess={handleUploadSuccess} />
-            <Uploads uploads={uploads} />
-            <CollaborationComponent uploadId="your-upload-id" />     
+            {selectedCollabId ? (
+              // Render CollaborationView when a collaboration is selected
+              <CollaborationView collaborationId={selectedCollabId} />
+            ) : (
+              // Otherwise, render the main UI components
+              <>
+                <Invitations />
+                <CollaborationCards userId={user.uid} onSelectCollab={setSelectedCollabId} />
+                <UploadForm onSuccess={handleUploadSuccess} />
+                <Uploads uploads={uploads} />
+                <CollaborationComponent uploadId="your-upload-id" />
+              </>
+            )}
           </>
         ) : (
           <>

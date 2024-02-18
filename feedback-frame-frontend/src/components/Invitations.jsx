@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { auth, firestore } from '../firebaseConfig';
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, getDocs, setDoc, arrayUnion } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc, arrayUnion } from "firebase/firestore";
 import { Card, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
   const [invitations, setInvitations] = useState([]);
-  const [acceptanceStatus, setAcceptanceStatus] = useState({});
-  
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
@@ -16,6 +14,7 @@ function Invitations() {
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       const fetchInvites = querySnapshot.docs.map(async (document) => {
         const inviteData = document.data();
+        // Assume inviteData now includes collaborationName
         try {
           const senderDocRef = doc(firestore, "users", inviteData.senderId);
           const senderDoc = await getDoc(senderDocRef);
@@ -23,11 +22,9 @@ function Invitations() {
             const senderInfo = senderDoc.data();
             return { id: document.id, ...inviteData, senderName: senderInfo.name || senderInfo.email };
           } else {
-            console.log("Sender does not exist.");
             return null; // Skip invites where sender info can't be fetched
           }
         } catch (error) {
-          console.error("Error fetching sender details:", error);
           return null; // Skip on error
         }
       });
@@ -39,41 +36,35 @@ function Invitations() {
     return () => unsubscribe();
   }, []);
 
-  const acceptInvitation = async (inviteId, senderId) => {
+  const acceptInvitation = async (invite) => {
+    const userId = auth.currentUser.uid;
+    const userDoc = await getDoc(doc(firestore, "users", userId));
+    const userName = userDoc.exists() ? userDoc.data().name : "Unknown User";
+
     try {
-      // Update the invitation status to 'accepted'
-      await updateDoc(doc(firestore, "collaborationInvites", inviteId), { status: 'accepted' });
+      await updateDoc(doc(firestore, "collaborationInvites", invite.id), { status: 'accepted' });
   
-      // Create a new collaboration document without the need for an uploadId initially
       const newCollabDocRef = doc(collection(firestore, "collaborations"));
       await setDoc(newCollabDocRef, {
-        ownerId: senderId,
-        collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
-        // No uploadId initially. Can be added later when the collaboration has a specific upload to discuss or work on
-        hasStarted: false // This field can indicate that the collaboration is ready but not yet tied to a specific upload
+        collaborationName: invite.collaborationName,
+        collaborators: arrayUnion({userId: invite.senderId, name: invite.senderName}, {userId: userId, name: userName}),
+        hasStarted: false
       });
   
       console.log("Collaboration initiated successfully");
-      setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Accepted'}));
     } catch (error) {
         console.error("Error initiating collaboration: ", error);
-        setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Error'}));
     }
   };
   
-
   return (
     <div>
       <h3>Invitations</h3>
       {invitations.length > 0 ? invitations.map((invite) => (
         <Card key={invite.id}>
-          <div>Invitation from {invite.senderName}</div>
+          <div>Invitation from {invite.senderName} for "{invite.collaborationName}"</div>
           <Spacer y={0.5} />
-          {!acceptanceStatus[invite.id] && (
-            <Button onClick={() => acceptInvitation(invite.id, invite.senderId, invite.uploadId)}>Accept</Button>
-          )}
-          {acceptanceStatus[invite.id] === 'Accepted' && <div color="success">You have accepted this invitation.</div>}
-          {acceptanceStatus[invite.id] === 'Error' && <div color="error">Error accepting invitation.</div>}
+          <Button onClick={() => acceptInvitation(invite)}>Accept</Button>
           <Spacer x={0.5} inline />
           <Button onClick={() => console.log("Decline invitation")}>Decline</Button>
         </Card>
