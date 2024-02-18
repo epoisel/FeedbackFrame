@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { auth, firestore } from '../firebaseConfig';
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "firebase/firestore";
-import { Card, Button, Spacer, Text } from '@nextui-org/react';
+import { Card, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
   const [invitations, setInvitations] = useState([]);
@@ -54,7 +54,7 @@ function Invitations() {
       <h3>Invitations</h3>
       {invitations.length > 0 ? invitations.map((invite) => (
         <Card key={invite.id}>
-          <Text>Invitation from {invite.senderName} for "{invite.collaborationName}"</Text>
+          <div>Invitation from {invite.senderName} for "{invite.collaborationName}"</div>
           <Spacer y={0.5} />
           <Button onClick={() => acceptInvitation(invite)}>Accept</Button>
           <Button onClick={() => handleDecline(invite.id)}>Decline</Button>
