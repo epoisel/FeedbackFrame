@@ -4,54 +4,55 @@ import { firestore, auth } from '../firebaseConfig';
 import { collection, addDoc, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 
 const CollaborationComponent = ({ uploadId }) => {
-  const [email, setEmail] = useState('');
-  const [collabName, setCollabName] = useState(''); // State for collaboration name
-  const [loading, setLoading] = useState(false);
-
-  const handleInvite = async () => {
-    if (!email || !collabName) { // Check for collabName input as well
-      alert("Please enter both an email address and a name for the collaboration.");
-      return;
-    }
-
-    setLoading(true);
-
-    const usersRef = collection(firestore, "users");
-    const q = query(usersRef, where("email", "==", email));
-
-    try {
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        alert("No user found with that email.");
-        setLoading(false);
+    const [email, setEmail] = useState('');
+    const [collabName, setCollabName] = useState('');
+    const [loading, setLoading] = useState(false);
+  
+    const handleInvite = async () => {
+      if (!email || !collabName) {
+        alert("Please enter both an email address and a name for the collaboration.");
         return;
       }
-
-      const senderDoc = await getDoc(doc(firestore, "users", auth.currentUser.uid)); // Fetch the sender's user document
-      const senderName = senderDoc.exists() ? senderDoc.data().name : "Unknown"; // Fallback to "Unknown" if not found
-
-      querySnapshot.forEach(async (doc) => {
-        const receiverId = doc.id;
-
+  
+      setLoading(true);
+  
+      try {
+        const usersRef = collection(firestore, "users");
+        const q = query(usersRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+  
+        if (querySnapshot.empty) {
+          alert("No user found with that email.");
+          setLoading(false);
+          return;
+        }
+  
+        // Fetch the sender's (current user's) name
+        const senderDoc = await getDoc(doc(firestore, "users", auth.currentUser.uid));
+        const senderName = senderDoc.exists() ? senderDoc.data().name : "Unknown User";
+  
+        // Assuming only one user with the email, adjust if your app allows multiple users with the same email
+        const receiverDoc = querySnapshot.docs[0];
+        const receiverId = receiverDoc.id;
+  
         await addDoc(collection(firestore, "collaborationInvites"), {
           senderId: auth.currentUser.uid,
-          senderName: senderName, // Include the sender's name
+          senderName: senderName,
           receiverId: receiverId,
-          collaborationName: collabName, // Include the collaboration name
+          collaborationName: collabName,
           uploadId: uploadId,
           status: 'pending'
         });
-           
+  
         alert("Collaborator invited successfully.");
+      } catch (error) {
+        console.error("Error inviting collaborator:", error);
+        alert("Failed to invite collaborator.");
+      } finally {
         setLoading(false);
-      });
-    } catch (error) {
-      console.error("Error inviting collaborator:", error);
-      alert("Failed to invite collaborator.");
-      setLoading(false);
-    }
-  };
+      }
+    };
+  
   
   return (
     <div>

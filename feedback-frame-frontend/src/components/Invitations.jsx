@@ -33,8 +33,26 @@ function Invitations() {
     return () => unsubscribe();
   }, []);
 
-  const acceptInvitation = async (invite) => {
-    // Accept invitation logic remains the same
+  const acceptInvitation = async (inviteId, senderId) => {
+    try {
+      // Update the invitation status to 'accepted'
+      await updateDoc(doc(firestore, "collaborationInvites", inviteId), { status: 'accepted' });
+  
+      // Create a new collaboration document without the need for an uploadId initially
+      const newCollabDocRef = doc(collection(firestore, "collaborations"));
+      await setDoc(newCollabDocRef, {
+        ownerId: senderId,
+        collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
+        // No uploadId initially. Can be added later when the collaboration has a specific upload to discuss or work on
+        hasStarted: false // This field can indicate that the collaboration is ready but not yet tied to a specific upload
+      });
+  
+      console.log("Collaboration initiated successfully");
+      setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Accepted'}));
+    } catch (error) {
+        console.error("Error initiating collaboration: ", error);
+        setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Error'}));
+    }
   };
 
   const handleDecline = async (inviteId) => {
