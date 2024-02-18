@@ -6,8 +6,7 @@ import { Card, Button, Spacer } from '@nextui-org/react';
 function Invitations() {
   const [invitations, setInvitations] = useState([]);
   const [acceptanceStatus, setAcceptanceStatus] = useState({});
-  const [inviteeEmails, setInviteeEmails] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  
 
   useEffect(() => {
     const userId = auth.currentUser?.uid;
@@ -61,65 +60,26 @@ function Invitations() {
         setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Error'}));
     }
   };
-  const handleInvite = async () => {
-    setSubmitting(true);
-    const emailsArray = userEmails.split(',').map(email => email.trim()); // Split string into array and trim whitespace
-    try {
-      await addDoc(collection(firestore, "collaborations"), {
-        name: collabName,
-        collaboratorEmails: emailsArray,
-        // Include any other necessary data for the collaboration
-      });
-      // Optionally: Send emails to the listed addresses with collaboration details
-      console.log('Collaboration created and invitations sent.');
-    } catch (error) {
-      console.error("Error sending invitations: ", error);
-    }
-    setSubmitting(false);
-  };
+  
 
   return (
     <div>
-    <h3>Invitations</h3>
-    {invitations.length > 0 ? invitations.map((invite) => (
-      <Card key={invite.id}>
-        <div>Invitation from {invite.senderName}</div>
-        <Spacer y={0.5} />
-        <Button onClick={() => acceptInvitation(invite.id, invite.senderId)}>Accept</Button>
-        {/* Display acceptance status if any */}
-      </Card>
-    )) : <div>No invitations found.</div>}
-    
-    {/* New form for naming a collaboration and adding invitees */}
-    <Spacer y={1.5} />
-    <Text h4>Create a New Collaboration</Text>
-    <Input
-      clearable
-      bordered
-      fullWidth
-      color="primary"
-      size="lg"
-      placeholder="Collaboration Name"
-      value={collabName}
-      onChange={(e) => setCollabName(e.target.value)}
-    />
-    <Spacer y={1} />
-    <Input
-      clearable
-      bordered
-      fullWidth
-      color="primary"
-      size="lg"
-      placeholder="Invitee Emails (comma-separated)"
-      value={inviteeEmails}
-      onChange={(e) => setInviteeEmails(e.target.value)}
-    />
-    <Spacer y={1} />
-    <Button disabled={submitting} auto onPress={handleSendInvites}>
-      {submitting ? 'Creating...' : 'Create and Invite'}
-    </Button>
-  </div>
-);
+      <h3>Invitations</h3>
+      {invitations.length > 0 ? invitations.map((invite) => (
+        <Card key={invite.id}>
+          <div>Invitation from {invite.senderName}</div>
+          <Spacer y={0.5} />
+          {!acceptanceStatus[invite.id] && (
+            <Button onClick={() => acceptInvitation(invite.id, invite.senderId, invite.uploadId)}>Accept</Button>
+          )}
+          {acceptanceStatus[invite.id] === 'Accepted' && <div color="success">You have accepted this invitation.</div>}
+          {acceptanceStatus[invite.id] === 'Error' && <div color="error">Error accepting invitation.</div>}
+          <Spacer x={0.5} inline />
+          <Button onClick={() => console.log("Decline invitation")}>Decline</Button>
+        </Card>
+      )) : <div>No invitations found.</div>}
+    </div>
+  );
 }
 
 export default Invitations;
