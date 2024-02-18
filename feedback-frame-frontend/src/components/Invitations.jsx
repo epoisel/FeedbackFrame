@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { auth, firestore } from '../firebaseConfig';
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, setDoc, arrayUnion } from "firebase/firestore";
 import { Card, Button, Spacer } from '@nextui-org/react';
 
 function Invitations() {
