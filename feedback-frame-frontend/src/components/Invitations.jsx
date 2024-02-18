@@ -59,7 +59,7 @@ function Invitations() {
           <Button onClick={() => acceptInvitation(invite)}>Accept</Button>
           <Button onClick={() => handleDecline(invite.id)}>Decline</Button>
         </Card>
-      )) : <Text>No pending invitations.</Text>}
+      )) : <div>No pending invitations.</div>}
     </div>
   );
 }
