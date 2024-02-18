@@ -54,8 +54,6 @@ function App() {
               <>
                 <Invitations />
                 <CollaborationCards userId={user.uid} onSelectCollab={setSelectedCollabId} />
-                <UploadForm onSuccess={handleUploadSuccess} />
-                <Uploads uploads={uploads} />
                 <CollaborationComponent uploadId="your-upload-id" />
               </>
             )}
