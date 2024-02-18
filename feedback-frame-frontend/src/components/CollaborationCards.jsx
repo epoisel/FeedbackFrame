@@ -7,6 +7,7 @@ function CollaborationCards({ userId, onSelectCollab }) {
   const [collaborations, setCollaborations] = useState([]);
 
   useEffect(() => {
+    console.log('Fetching collaborations for user:', userId); // Before fetching
     const fetchCollaborations = async () => {
       const q = query(collection(firestore, "collaborations"), where("collaborators", "array-contains", userId));
       const querySnapshot = await getDocs(q);
@@ -20,6 +21,7 @@ function CollaborationCards({ userId, onSelectCollab }) {
                                 .join(', '), // Join names with comma
         collaborationName: doc.data().collaborationName,
       }));
+      console.log('Fetched collaborations:', collaborationsData);
       setCollaborations(collaborationsData);
     };
     fetchCollaborations();
