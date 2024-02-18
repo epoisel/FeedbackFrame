@@ -34,25 +34,30 @@ function Invitations() {
     return () => unsubscribe();
   }, []);
 
-  const acceptInvitation = async (inviteId, senderId) => {
+  const acceptInvitation = async (invite) => {
+    // Extracting inviteId and senderId from the invite object
+    const { id: inviteId, senderId } = invite;
+  
     try {
       // Update the invitation status to 'accepted'
       await updateDoc(doc(firestore, "collaborationInvites", inviteId), { status: 'accepted' });
   
-      // Create a new collaboration document without the need for an uploadId initially
+      // Assume senderId is available within the invite object for creating a collaboration
+      // If senderId is not part of invite, you'll need to adjust accordingly
       const newCollabDocRef = doc(collection(firestore, "collaborations"));
       await setDoc(newCollabDocRef, {
         ownerId: senderId,
-        collaborators: [senderId, auth.currentUser.uid], // Include both the sender and receiver as collaborators
-        // No uploadId initially. Can be added later when the collaboration has a specific upload to discuss or work on
-        hasStarted: false // This field can indicate that the collaboration is ready but not yet tied to a specific upload
+        collaborators: arrayUnion({ userId: senderId }, { userId: auth.currentUser.uid }), // Adjust based on your data structure
+        hasStarted: false // Additional fields as necessary
       });
   
       console.log("Collaboration initiated successfully");
-      setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Accepted'}));
+      // Optionally update UI state to reflect the change
+      setAcceptanceStatus(prevState => ({ ...prevState, [inviteId]: 'Accepted' }));
     } catch (error) {
-        console.error("Error initiating collaboration: ", error);
-        setAcceptanceStatus(prevState => ({...prevState, [inviteId]: 'Error'}));
+      console.error("Error initiating collaboration:", error);
+      // Optionally update UI state to indicate the error
+      setAcceptanceStatus(prevState => ({ ...prevState, [inviteId]: 'Error' }));
     }
   };
 
