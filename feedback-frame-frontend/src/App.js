@@ -17,6 +17,7 @@ import './App.css';
 function App() {
   const [user] = useAuthState(auth);
   const [uploads, setUploads] = useState([]);
+  const [selectedCollabId, setSelectedCollabId] = useState(null);
 
   const fetchUploads = async () => {
     // Initialize a query against the "uploads" collection
@@ -45,7 +46,7 @@ function App() {
           <>
             <SignOut />
             <Invitations />
-            <CollaborationCards userId={user.uid} />
+            <CollaborationCards userId={user.uid} onSelectCollab={setSelectedCollabId} />
             <UploadForm onSuccess={handleUploadSuccess} />
             <Uploads uploads={uploads} />
             <CollaborationComponent uploadId="your-upload-id" />     

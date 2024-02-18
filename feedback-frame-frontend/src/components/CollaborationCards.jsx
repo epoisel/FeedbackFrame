@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { useNavigate } from 'react-router-dom';
+
 import { Card, CardBody, CardFooter, Image } from '@nextui-org/react';
 
-function CollaborationCards({ userId }) {
+function CollaborationCards({ userId, onSelectCollab }) {
   const [collaborations, setCollaborations] = useState([]);
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ function CollaborationCards({ userId }) {
   }, [userId]);
 
   const handleCardPress = (collabId) => {
-    navigate(`/collaboration/${collabId}`);
+    onSelectCollab(collabId);
   };
 
   return (
