@@ -27,7 +27,7 @@ function CollaborationCards({ userId }) {
 
   const handleCardPress = (collabId) => {
     // Assuming onSelectCollab is a prop function passed down from the parent component
-    setSelectedCollabId(collabId);
+    onSelectCollab(collabId);
   };
 
   return (
