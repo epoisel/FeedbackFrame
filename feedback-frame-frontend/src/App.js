@@ -10,6 +10,7 @@ import PasswordReset from './components/PasswordReset'; // Adjust the path as ne
 import SignUp from './components/SignUp'; // Adjust the path as necessary
 import CollaborationComponent from './components/CollaborationComponent';
 import  Invitations  from './components/Invitations'; // Adjust the import path as necessary
+import CollaborationCards from './components/CollaborationCards';
 import {NextUIProvider} from "@nextui-org/react";
 import './App.css';
 
@@ -43,10 +44,11 @@ function App() {
         {user ? (
           <>
             <SignOut />
+            <Invitations />
+            <CollaborationCards userId={user.uid} />
             <UploadForm onSuccess={handleUploadSuccess} />
             <Uploads uploads={uploads} />
-            <CollaborationComponent uploadId="your-upload-id" />
-            <Invitations />       
+            <CollaborationComponent uploadId="your-upload-id" />     
           </>
         ) : (
           <>
