@@ -34,9 +34,11 @@ function Uploads() {
   };
 
   const fetchUploadsForCollaborations = async (collabIds) => {
+    if (!collabIds.length) return; // Ensure there are collabIds to query for
     let uploadsData = {};
     let newIndices = {};
     for (let collabId of collabIds) {
+      if (!collabId) continue; // Skip undefined or invalid collabId
       const uploadsQuery = query(collection(firestore, "uploads"), where("collabId", "==", collabId));
       const uploadsSnapshot = await getDocs(uploadsQuery);
       uploadsData[collabId] = uploadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
