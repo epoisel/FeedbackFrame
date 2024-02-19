@@ -53,7 +53,7 @@ function CollaborationView({ collaborationId }) {
   return (
     <div>
       <UploadForm collaborationId={collaborationId} />
-      <Uploads collaborationId={collaborationId} />
+      <UploadForm collabId={collaborationId} />
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
         {leftImageUrl && <Image src={leftImageUrl} alt="Starter's Latest Upload" width={300} />}
         {rightImageUrl && <Image src={rightImageUrl} alt="Acceptor's Latest Upload" width={300} />}
