@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { firestore, auth } from '../firebaseConfig'; // Adjust this path as needed
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Button, Card, CardHeader, CardBody, Image, CardFooter, Slider } from '@nextui-org/react';
+import { Button, Card, Image, Slider } from '@nextui-org/react';
 
 function Uploads() {
   const [uploads, setUploads] = useState({});
@@ -11,53 +11,38 @@ function Uploads() {
   const [collaborations, setCollaborations] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (user) {
-        await fetchCollaborations(user.uid);
+        fetchCollaborations(user.uid);
       } else {
         setUploads({});
         setCollaborations([]);
+        setCurrentIndex({});
       }
     });
+
     return () => unsubscribe();
   }, []);
 
   const fetchCollaborations = async (userId) => {
-    const ownedCollabs = query(collection(firestore, "Collaborations Collection"), where("ownerId", "==", userId));
-    const partOfCollabs = query(collection(firestore, "Collaborations Collection"), where("collaborators", "array-contains", userId));
-    const ownedSnap = await getDocs(ownedCollabs);
-    const partSnap = await getDocs(partOfCollabs);
-    
-    let collabIds = [];
-    ownedSnap.forEach(doc => {
-      collabIds.push(doc.id);
-    });
-    partSnap.forEach(doc => {
-      if (!collabIds.includes(doc.id)) {
-        collabIds.push(doc.id);
-      }
-    });
+    const collabsQuery = query(collection(firestore, "collaborationInvites"), where("receiverId", "==", userId));
+    const collabsSnapshot = await getDocs(collabsQuery);
+    let collabIds = collabsSnapshot.docs.map(doc => doc.data().collabId);
     setCollaborations(collabIds);
-    await fetchUploadsForCollaborations(collabIds);
+    fetchUploadsForCollaborations(collabIds);
   };
 
   const fetchUploadsForCollaborations = async (collabIds) => {
     let uploadsData = {};
+    let newIndices = {};
     for (let collabId of collabIds) {
-      const q = query(collection(firestore, "uploads"), where("collabId", "==", collabId));
-      const querySnapshot = await getDocs(q);
-      uploadsData[collabId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const uploadsQuery = query(collection(firestore, "uploads"), where("collabId", "==", collabId));
+      const uploadsSnapshot = await getDocs(uploadsQuery);
+      uploadsData[collabId] = uploadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      newIndices[collabId] = 0; // Initialize index for each collaboration
     }
     setUploads(uploadsData);
-    resetCurrentIndex(uploadsData);
-  };
-
-  const resetCurrentIndex = (uploadsData) => {
-    let newIndices = {};
-    Object.keys(uploadsData).forEach(collabId => {
-      newIndices[collabId] = 0;
-    });
     setCurrentIndex(newIndices);
   };
 
@@ -70,39 +55,36 @@ function Uploads() {
 
   const renderSlideshow = (collabId) => {
     const collabUploads = uploads[collabId] || [];
-    return collabUploads.map((upload, index) => (
-      <Card key={index}>
-        <CardHeader>
-          <h4>Uploaded by: {upload.userId}</h4>
-        </CardHeader>
-        <CardBody css={{ d: "flex", flexDirection: "row", alignItems: "center", gap: "20px" }}>
+    if (collabUploads.length === 0) return null; // Early return if no uploads
+
+    const upload = collabUploads[currentIndex[collabId]];
+    return (
+      <Card>
+        <Card.Body>
           <Slider
             size="sm"
-            color="foreground"
             step={1}
             showMarkers={true}
-            defaultValue={0}
+            defaultValue={currentIndex[collabId]}
             min={0}
             max={collabUploads.length - 1}
-            value={currentIndex[collabId] || 0}
+            value={currentIndex[collabId]}
             onChange={(value) => handleSliderChange(collabId, value)}
           />
           <Image
-            src={upload.preview} // Assuming 'preview' is the URL
+            src={upload.previewUrl} // Ensure this matches your data field name
             alt="Artwork preview"
-            width={1000}
-            height={1000}
+            width="100%"
           />
-        </CardBody>
+        </Card.Body>
       </Card>
-    ));
+    );
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexDirection: 'column' }}>
-      {collaborations.map((collabId) => (
-        <div key={collabId}>
-          {/* Render slideshow for each collaboration */}
+    <div>
+      {collaborations.map(collabId => (
+        <div key={collabId} style={{ marginBottom: '20px' }}>
           {renderSlideshow(collabId)}
         </div>
       ))}
