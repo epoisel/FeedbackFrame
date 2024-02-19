@@ -60,7 +60,7 @@ function CollaborationView({ collaborationId }) {
       </div>
       {previews.length > 0 && (
         <Card>
-          <Card.Body>
+          <CardBody>
             <Slider
               step={1}
               min={0}
@@ -71,7 +71,7 @@ function CollaborationView({ collaborationId }) {
             <img src={previews[currentPreviewIndex].previewUrl} alt="Preview" width="100%" />
             {/* Use appropriate method to format timestamp */}
             <p>{`Upload Date: ${new Date(previews[currentPreviewIndex].timestamp.seconds * 1000).toDateString()}`}</p>
-          </Card.Body>
+          </CardBody>
         </Card>
       )}
     </div>
