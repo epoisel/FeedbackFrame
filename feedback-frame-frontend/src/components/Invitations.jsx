@@ -12,7 +12,7 @@ function Invitations() {
     if (!userId) return;
 
     // Adjusted query to include only pending invitations
-    const q = query(collection(firestore, "collaborationInvites"), where("collaborators", "array-contains", userId),
+    const q = query(collection(firestore, "collaborationInvites"),
       where("receiverId", "==", userId),
       where("status", "==", "pending") // Only fetch invitations that are still pending
     );
