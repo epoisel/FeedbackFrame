@@ -27,10 +27,27 @@ function Uploads() {
   }, []);
 
   const fetchCollaborations = async (userId) => {
-    const collabsQuery = query(collection(firestore, "collaborationInvites"), where("receiverId", "==", userId));
-    const collabsSnapshot = await getDocs(collabsQuery);
-    let collabIds = collabsSnapshot.docs.map(doc => doc.data().collabId);
+    // Fetch collaborations where the user is the owner
+    const ownedCollabsQuery = query(collection(firestore, "collaborations"), where("ownerId", "==", userId));
+    const ownedCollabsSnapshot = await getDocs(ownedCollabsQuery);
+  
+    // Fetch collaborations where the user is a collaborator
+    const partOfCollabsQuery = query(collection(firestore, "collaborations"), where("collaborators", "array-contains", userId));
+    const partOfCollabsSnapshot = await getDocs(partOfCollabsQuery);
+  
+    // Combine the IDs from both queries, avoiding duplicates
+    let collabIds = new Set();
+    ownedCollabsSnapshot.forEach(doc => {
+      collabIds.add(doc.id);
+    });
+    partOfCollabsSnapshot.forEach(doc => {
+      collabIds.add(doc.id);
+    });
+  
+    // Convert Set back to Array for further processing
+    collabIds = Array.from(collabIds);
     console.log("Fetched collaboration IDs:", collabIds);
+  
     setCollaborations(collabIds);
     fetchUploadsForCollaborations(collabIds);
   };
