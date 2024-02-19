@@ -53,21 +53,32 @@ function Uploads() {
   };
 
   const fetchUploadsForCollaborations = async (collabIds) => {
-    if (!collabIds.length) {
-      console.log("No collaboration IDs to fetch uploads for.");
-      return;
-    }
     let uploadsData = {};
-    let newIndices = {};
     for (let collabId of collabIds) {
-      if (!collabId) continue; // Skip undefined or invalid collabId
-      const uploadsQuery = query(collection(firestore, "uploads"), where("collabId", "==", collabId));
-      const uploadsSnapshot = await getDocs(uploadsQuery);
-      uploadsData[collabId] = uploadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      newIndices[collabId] = 0; // Initialize index for each collaboration
+      const collabDocRef = doc(firestore, "collaborations", collabId);
+      const collabDocSnap = await getDoc(collabDocRef);
+      if (!collabDocSnap.exists()) continue; // Skip if collaboration doesn't exist
+      const collabData = collabDocSnap.data();
+      const participantIds = [collabData.ownerId, ...(collabData.collaborators || [])];
+  
+      for (let userId of participantIds) {
+        const uploadsQuery = query(collection(firestore, "uploads"), where("userId", "==", userId), where("collabId", "==", collabId), orderBy("timestamp", "desc"), limit(1));
+        const uploadsSnapshot = await getDocs(uploadsQuery);
+        if (!uploadsSnapshot.empty) {
+          const mostRecentUpload = uploadsSnapshot.docs[0].data();
+          // Initialize or append to uploadsData for the collaboration
+          if (!uploadsData[collabId]) {
+            uploadsData[collabId] = [mostRecentUpload];
+          } else {
+            uploadsData[collabId].push(mostRecentUpload);
+          }
+        }
+      }
     }
-    console.log("Fetched uploads data:", uploadsData);
+  
     setUploads(uploadsData);
+    // Initialize currentIndex for each collaboration with at least one upload
+    const newIndices = Object.keys(uploadsData).reduce((acc, id) => ({ ...acc, [id]: 0 }), {});
     setCurrentIndex(newIndices);
   };
 
