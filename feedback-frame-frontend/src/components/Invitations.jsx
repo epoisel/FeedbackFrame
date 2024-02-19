@@ -49,9 +49,9 @@ function Invitations() {
         collabId: newCollabDocRef.id, // Ensuring collabId is set to the document's ID
         ownerId: senderId,
         collaborators: [
-          { userId: senderId },
-          { userId: auth.currentUser.uid }
-        ], // Correct structure for collaborators
+            senderId, // Directly using senderId as a string
+            auth.currentUser.uid // Directly using current user's uid as a string
+          ], // Correct structure for collaborators
         hasStarted: true,
         collaborationName: collaborationName
       });
