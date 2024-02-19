@@ -12,6 +12,7 @@ function Uploads() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed, user:", user);
       setCurrentUser(user);
       if (user) {
         fetchCollaborations(user.uid);
@@ -29,12 +30,16 @@ function Uploads() {
     const collabsQuery = query(collection(firestore, "collaborationInvites"), where("receiverId", "==", userId));
     const collabsSnapshot = await getDocs(collabsQuery);
     let collabIds = collabsSnapshot.docs.map(doc => doc.data().collabId);
+    console.log("Fetched collaboration IDs:", collabIds);
     setCollaborations(collabIds);
     fetchUploadsForCollaborations(collabIds);
   };
 
   const fetchUploadsForCollaborations = async (collabIds) => {
-    if (!collabIds.length) return; // Ensure there are collabIds to query for
+    if (!collabIds.length) {
+      console.log("No collaboration IDs to fetch uploads for.");
+      return;
+    }
     let uploadsData = {};
     let newIndices = {};
     for (let collabId of collabIds) {
@@ -44,11 +49,13 @@ function Uploads() {
       uploadsData[collabId] = uploadsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       newIndices[collabId] = 0; // Initialize index for each collaboration
     }
+    console.log("Fetched uploads data:", uploadsData);
     setUploads(uploadsData);
     setCurrentIndex(newIndices);
   };
 
   const handleSliderChange = (collabId, value) => {
+    console.log(`Slider value changed for ${collabId}:`, value);
     setCurrentIndex(prevIndex => ({
       ...prevIndex,
       [collabId]: value,
@@ -57,9 +64,13 @@ function Uploads() {
 
   const renderSlideshow = (collabId) => {
     const collabUploads = uploads[collabId] || [];
-    if (collabUploads.length === 0) return null; // Early return if no uploads
+    if (collabUploads.length === 0) {
+      console.log(`No uploads for collaboration: ${collabId}`);
+      return null; // Early return if no uploads
+    }
 
     const upload = collabUploads[currentIndex[collabId]];
+    console.log(`Rendering slideshow for ${collabId}, upload:`, upload);
     return (
       <Card>
         <CardBody>
