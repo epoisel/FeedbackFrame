@@ -52,7 +52,7 @@ function Invitations() {
           { userId: senderId },
           { userId: auth.currentUser.uid }
         ], // Correct structure for collaborators
-        hasStarted: false,
+        hasStarted: true,
         collaborationName: collaborationName
       });
   

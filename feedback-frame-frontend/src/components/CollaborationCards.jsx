@@ -9,7 +9,7 @@ function CollaborationCards({ userId, onSelectCollab }) {
   useEffect(() => {
     console.log('Fetching collaborations for user:', userId); // Before fetching
     const fetchCollaborations = async () => {
-      const q = query(collection(firestore, "collaborations"), where("collaborators", "array-contains", userId));
+      const q = query(collection(firestore, "collaborations"));
       const querySnapshot = await getDocs(q);
       const collaborationsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
