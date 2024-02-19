@@ -46,9 +46,14 @@ function Invitations() {
       // If senderId is not part of invite, you'll need to adjust accordingly
       const newCollabDocRef = doc(collection(firestore, "collaborations"));
       await setDoc(newCollabDocRef, {
+        collabId: newCollabDocRef.id, // Ensuring collabId is set to the document's ID
         ownerId: senderId,
-        collaborators: arrayUnion({ userId: senderId }, { userId: auth.currentUser.uid }), // Adjust based on your data structure
-        hasStarted: false // Additional fields as necessary
+        collaborators: [
+          { userId: senderId },
+          { userId: auth.currentUser.uid }
+        ], // Correct structure for collaborators
+        hasStarted: false,
+        collaborationName: "" // Assuming a name might be added later or can be set now if available
       });
   
       console.log("Collaboration initiated successfully");
