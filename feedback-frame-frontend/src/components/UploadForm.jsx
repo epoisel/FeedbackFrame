@@ -9,9 +9,10 @@ function UploadForm({ collabId }) { // Accept collabId as a prop
   const [artwork, setArtwork] = useState(null);
   const [preview, setPreview] = useState(null);
   const { currentUser } = useAuth();
-
+  console.log("Received collabId in UploadForm:", collabId);
   const handleUpload = async (e) => {
     e.preventDefault();
+    console.log("Current user:", currentUser, "Collab ID:", collabId);
     if (!currentUser || !collabId) {
       alert('No authenticated user found or collaboration ID is missing.');
       return;

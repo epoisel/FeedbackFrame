@@ -23,8 +23,8 @@ function CollaborationView({ collaborationId }) {
       // Fetch the most recent upload for both
       const collabDetails = await getCollaborationDetails(collaborationId);
       if (collabDetails) {
-        fetchMostRecentUpload(collabDetails.starterId, setLeftImageUrl);
-        fetchMostRecentUpload(collabDetails.acceptorId, setRightImageUrl);
+        fetchMostRecentUpload(collabDetails.senderId, setLeftImageUrl);
+        fetchMostRecentUpload(collabDetails.receiverId, setRightImageUrl);
       }
     };
 
@@ -34,7 +34,7 @@ function CollaborationView({ collaborationId }) {
   const getCollaborationDetails = async (collabId) => {
     // Placeholder for actual implementation
     // Fetch collaboration details to identify the starter and acceptor IDs
-    return { starterId: '', acceptorId: '' };
+    return { senderId: '', receiverId: '' };
   };
 
   const fetchMostRecentUpload = async (userId, setImageUrl) => {
@@ -49,7 +49,7 @@ function CollaborationView({ collaborationId }) {
   const handleChange = (value) => {
     setCurrentPreviewIndex(value);
   };
-
+  console.log("Passing collabId to UploadForm:", collaborationId);
   return (
     <div>
       <UploadForm collaborationId={collaborationId} />
