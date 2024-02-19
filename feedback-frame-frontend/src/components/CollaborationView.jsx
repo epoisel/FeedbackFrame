@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { firestore } from '../firebaseConfig';
+import { firestore } from './firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { Slider, Card, Row } from '@nextui-org/react';
+import { Slider, Card, Grid, Text } from '@nextui-org/react';
 import UploadForm from './UploadForm';
 import Uploads from './Upload';
 
@@ -29,25 +29,27 @@ function CollaborationView({ collaborationId }) {
     <div>
       <UploadForm collaborationId={collaborationId} />
       <Uploads collaborationId={collaborationId} />
-      <Row justify="center" align="center">
-        <Card css={{ mw: "600px" }}>
-          <Card.Body>
-            {previews.length > 0 && (
-              <>
-                <Slider
-                  step={1}
-                  min={0}
-                  max={previews.length - 1}
-                  value={currentPreviewIndex}
-                  onChange={handleChange}
-                />
-                <img src={previews[currentPreviewIndex].previewUrl} alt="Preview" width="100%" />
-                <div>{`Upload Date: ${previews[currentPreviewIndex].timestamp.toDate().toDateString()}`}</div>
-              </>
-            )}
-          </Card.Body>
-        </Card>
-      </Row>
+      <Grid.Container gap={2} justify="center">
+        <Grid xs={12} sm={6}>
+          <Card>
+            <Card.Body>
+              {previews.length > 0 && (
+                <>
+                  <Slider
+                    step={1}
+                    min={0}
+                    max={previews.length - 1}
+                    value={currentPreviewIndex}
+                    onChange={handleChange}
+                  />
+                  <img src={previews[currentPreviewIndex].previewUrl} alt="Preview" width="100%" />
+                  <Text size={14}>{`Upload Date: ${new Date(previews[currentPreviewIndex].timestamp.seconds * 1000).toDateString()}`}</Text>
+                </>
+              )}
+            </Card.Body>
+          </Card>
+        </Grid>
+      </Grid.Container>
     </div>
   );
 }
