@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { firestore, auth } from '../firebaseConfig'; // Adjust this path as needed
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { Button, Card, Image, Slider } from '@nextui-org/react';
+import { Button, Card, CardBody, Image, Slider } from '@nextui-org/react';
 
 function Uploads() {
   const [uploads, setUploads] = useState({});
@@ -62,7 +62,7 @@ function Uploads() {
     const upload = collabUploads[currentIndex[collabId]];
     return (
       <Card>
-        <Card.Body>
+        <CardBody>
           <Slider
             size="sm"
             step={1}
@@ -78,7 +78,7 @@ function Uploads() {
             alt="Artwork preview"
             width="100%"
           />
-        </Card.Body>
+        </CardBody>
       </Card>
     );
   };
