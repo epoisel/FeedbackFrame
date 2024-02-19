@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-import { Slider, Card, Image } from '@nextui-org/react';
+import { Slider, Card, CardBody, Image } from '@nextui-org/react';
 import UploadForm from './UploadForm';
 import Uploads from './Upload';
 
