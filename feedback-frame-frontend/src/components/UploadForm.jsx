@@ -1,19 +1,19 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../AuthContext';
 import { storage, firestore } from '../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { Button, Input } from '@nextui-org/react';
 
-function UploadForm() {
+function UploadForm({ collabId }) { // Accept collabId as a prop
   const [artwork, setArtwork] = useState(null);
   const [preview, setPreview] = useState(null);
   const { currentUser } = useAuth();
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!currentUser) {
-      alert('No authenticated user found.');
+    if (!currentUser || !collabId) {
+      alert('No authenticated user found or collaboration ID is missing.');
       return;
     }
     
@@ -32,6 +32,7 @@ function UploadForm() {
         artworkUrl,
         previewUrl,
         timestamp: new Date(),
+        collabId, // Include collabId in the document
       });
 
       alert('File uploaded successfully');
