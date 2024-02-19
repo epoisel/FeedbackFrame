@@ -36,7 +36,7 @@ function Invitations() {
 
   const acceptInvitation = async (invite) => {
     // Extracting inviteId and senderId from the invite object
-    const { id: inviteId, senderId } = invite;
+    const { id: inviteId, senderId, collaborationName } = invite;
   
     try {
       // Update the invitation status to 'accepted'
@@ -53,7 +53,7 @@ function Invitations() {
           { userId: auth.currentUser.uid }
         ], // Correct structure for collaborators
         hasStarted: false,
-        collaborationName: "" // Assuming a name might be added later or can be set now if available
+        collaborationName: collaborationName
       });
   
       console.log("Collaboration initiated successfully");
