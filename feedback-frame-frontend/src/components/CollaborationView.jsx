@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { firestore } from './firebaseConfig';
+import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Slider, Card, Row } from '@nextui-org/react';
 import UploadForm from './UploadForm';
