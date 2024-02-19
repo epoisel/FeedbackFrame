@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { firestore, auth } from '../firebaseConfig'; // Adjust this path as needed
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where,getDoc, getDocs, doc, orderBy, limit  } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Button, Card, CardBody, Image, Slider } from '@nextui-org/react';
 
@@ -53,34 +53,34 @@ function Uploads() {
   };
 
   const fetchUploadsForCollaborations = async (collabIds) => {
-    let uploadsData = {};
-    for (let collabId of collabIds) {
-      const collabDocRef = doc(firestore, "collaborations", collabId);
-      const collabDocSnap = await getDoc(collabDocRef);
-      if (!collabDocSnap.exists()) continue; // Skip if collaboration doesn't exist
-      const collabData = collabDocSnap.data();
-      const participantIds = [collabData.ownerId, ...(collabData.collaborators || [])];
-  
-      for (let userId of participantIds) {
-        const uploadsQuery = query(collection(firestore, "uploads"), where("userId", "==", userId), where("collabId", "==", collabId), orderBy("timestamp", "desc"), limit(1));
-        const uploadsSnapshot = await getDocs(uploadsQuery);
-        if (!uploadsSnapshot.empty) {
-          const mostRecentUpload = uploadsSnapshot.docs[0].data();
-          // Initialize or append to uploadsData for the collaboration
-          if (!uploadsData[collabId]) {
-            uploadsData[collabId] = [mostRecentUpload];
-          } else {
-            uploadsData[collabId].push(mostRecentUpload);
-          }
+  let uploadsData = {};
+  for (let collabId of collabIds) {
+    const collabDocRef = doc(firestore, "collaborations", collabId);
+    const collabDocSnap = await getDoc(collabDocRef);
+    if (!collabDocSnap.exists()) continue; // Skip if collaboration doesn't exist
+    const collabData = collabDocSnap.data();
+    const participantIds = [collabData.ownerId, ...(collabData.collaborators || [])];
+
+    for (let userId of participantIds) {
+      const uploadsQuery = query(collection(firestore, "uploads"), where("userId", "==", userId), where("collabId", "==", collabId), orderBy("timestamp", "desc"), limit(1));
+      const uploadsSnapshot = await getDocs(uploadsQuery);
+      if (!uploadsSnapshot.empty) {
+        const mostRecentUpload = uploadsSnapshot.docs[0].data();
+        // Initialize or append to uploadsData for the collaboration
+        if (!uploadsData[collabId]) {
+          uploadsData[collabId] = [mostRecentUpload];
+        } else {
+          uploadsData[collabId].push(mostRecentUpload);
         }
       }
     }
-  
-    setUploads(uploadsData);
-    // Initialize currentIndex for each collaboration with at least one upload
-    const newIndices = Object.keys(uploadsData).reduce((acc, id) => ({ ...acc, [id]: 0 }), {});
-    setCurrentIndex(newIndices);
-  };
+  }
+
+  setUploads(uploadsData);
+  // Initialize currentIndex for each collaboration with at least one upload
+  const newIndices = Object.keys(uploadsData).reduce((acc, id) => ({ ...acc, [id]: 0 }), {});
+  setCurrentIndex(newIndices);
+};
 
   const handleSliderChange = (collabId, value) => {
     console.log(`Slider value changed for ${collabId}:`, value);
