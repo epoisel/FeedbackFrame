@@ -46,8 +46,19 @@ function CollaborationView({ collaborationId }) {
     }
   };
 
-  const handleChange = (value) => {
-    setCurrentPreviewIndex(value);
+  const handleSliderChange = (collabId, userId, value) => {
+    // Log the slider value change for debugging
+    console.log(`Slider value changed for ${collabId}, user ${userId}:`, value);
+  
+    // Update the currentIndex state to reflect the new slider position
+    // Ensure we safely update the state to avoid crashes for non-existent indexes
+    setCurrentIndex(prevIndex => ({
+      ...prevIndex,
+      [collabId]: {
+        ...prevIndex[collabId],
+        [userId]: Math.max(0, Math.min(value, (uploads[collabId][userId] ? uploads[collabId][userId].length : 0) - 1)) // Safeguard against out-of-bounds
+      },
+    }));
   };
   console.log("Passing collabId to UploadForm:", collaborationId);
   return (
@@ -61,13 +72,16 @@ function CollaborationView({ collaborationId }) {
       {previews.length > 0 && (
         <Card>
           <CardBody>
-            <Slider
-              step={1}
-              min={0}
-              max={previews.length - 1}
-              value={currentPreviewIndex}
-              onChange={handleChange}
-            />
+          <Slider
+          size="sm"
+          step={1}
+          showMarkers={true}
+          defaultValue={0} // Start with the first upload
+          min={0}
+          max={(uploads[collabId][userId] ? uploads[collabId][userId].length : 1) - 1} // Adjust based on the number of uploads for this user
+          value={currentIndex[collabId] && currentIndex[collabId][userId] ? currentIndex[collabId][userId] : 0}
+          onChange={(value) => handleSliderChange(collabId, userId, value)}
+        />
             <img src={previews[currentPreviewIndex].previewUrl} alt="Preview" width="100%" />
             {/* Use appropriate method to format timestamp */}
             <p>{`Upload Date: ${new Date(previews[currentPreviewIndex].timestamp.seconds * 1000).toDateString()}`}</p>

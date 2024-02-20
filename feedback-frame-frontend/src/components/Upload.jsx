@@ -86,20 +86,6 @@ function Uploads() {
     setCurrentIndex(newIndices);
   };
 
-  const handleSliderChange = (collabId, userId, value) => {
-    // Log the slider value change for debugging
-    console.log(`Slider value changed for ${collabId}, user ${userId}:`, value);
-  
-    // Update the currentIndex state to reflect the new slider position
-    // Ensure we safely update the state to avoid crashes for non-existent indexes
-    setCurrentIndex(prevIndex => ({
-      ...prevIndex,
-      [collabId]: {
-        ...prevIndex[collabId],
-        [userId]: Math.max(0, Math.min(value, (uploads[collabId][userId] ? uploads[collabId][userId].length : 0) - 1)) // Safeguard against out-of-bounds
-      },
-    }));
-  };
 
   const renderSlideshow = (collabId) => {
     const collabUploads = uploads[collabId] || {};
@@ -120,16 +106,7 @@ function Uploads() {
             />
             {/* Adjust slider and metadata rendering as needed */}
           </CardBody>
-          <Slider
-            size="sm"
-            step={1}
-            showMarkers={true}
-            defaultValue={0} // Start with the first upload
-            min={0}
-            max={(uploads[collabId][userId] ? uploads[collabId][userId].length : 1) - 1} // Adjust based on the number of uploads for this user
-            value={currentIndex[collabId] && currentIndex[collabId][userId] ? currentIndex[collabId][userId] : 0}
-            onChange={(value) => handleSliderChange(collabId, userId, value)}
-          />
+         
         </Card>
       );
     });
