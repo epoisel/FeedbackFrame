@@ -4,7 +4,7 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { Button, Card, CardBody, Image, Slider } from '@nextui-org/react';
 import UploadForm from './UploadForm';
 
-function CollaborationView({ collaborationId }) {
+function CollaborationView({ collaborationId, onBack }) {
   const [userUploads, setUserUploads] = useState({});
   const [currentPreviewIndices, setCurrentPreviewIndices] = useState({});
 
@@ -43,14 +43,11 @@ function CollaborationView({ collaborationId }) {
     }));
   };
 
-  // Function to navigate back using the browser's history
-  const handleBackClick = () => {
-    window.history.back();
-  };
+  
 
   return (
     <div>
-      <Button auto flat color="error" onClick={handleBackClick}>
+      <Button auto flat color="error" onClick={onBack}>
         Go Back
       </Button>
 

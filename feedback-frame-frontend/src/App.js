@@ -31,6 +31,10 @@ function App() {
       console.error('Error fetching uploads from Firestore:', error);
     }
   };
+  // Function to navigate back using the browser's history
+  const handleBack = () => {
+    setSelectedCollabId(null); // Assuming this will show the main UI components again
+  };
 
   useEffect(() => {
     fetchUploads();
@@ -48,7 +52,7 @@ function App() {
             <SignOut />
             {selectedCollabId ? (
               // Render CollaborationView when a collaboration is selected
-              <CollaborationView collaborationId={selectedCollabId} />
+              <CollaborationView collaborationId={selectedCollabId} onBack={handleBack} />
             ) : (
               // Otherwise, render the main UI components
               <>
