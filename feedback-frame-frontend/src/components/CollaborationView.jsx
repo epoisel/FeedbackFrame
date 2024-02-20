@@ -58,7 +58,7 @@ function CollaborationView({ collaborationId, onBack }) {
       {Object.entries(userUploads).map(([userId, uploads]) => (
         <div key={userId} style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
           {uploads.length > 0 && (
-            <Card>
+            <Card className="w-[50%]">
               <CardBody>
                 <Slider
                   step={1}
