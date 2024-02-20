@@ -121,15 +121,15 @@ function Uploads() {
             {/* Adjust slider and metadata rendering as needed */}
           </CardBody>
           <Slider
-  size="sm"
-  step={1}
-  showMarkers={true}
-  defaultValue={0} // Start with the first upload
-  min={0}
-  max={(uploads[collabId][userId] ? uploads[collabId][userId].length : 1) - 1} // Adjust based on the number of uploads for this user
-  value={currentIndex[collabId] && currentIndex[collabId][userId] ? currentIndex[collabId][userId] : 0}
-  onChange={(value) => handleSliderChange(collabId, userId, value)}
-/>
+            size="sm"
+            step={1}
+            showMarkers={true}
+            defaultValue={0} // Start with the first upload
+            min={0}
+            max={(uploads[collabId][userId] ? uploads[collabId][userId].length : 1) - 1} // Adjust based on the number of uploads for this user
+            value={currentIndex[collabId] && currentIndex[collabId][userId] ? currentIndex[collabId][userId] : 0}
+            onChange={(value) => handleSliderChange(collabId, userId, value)}
+          />
         </Card>
       );
     });
