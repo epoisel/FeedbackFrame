@@ -1,31 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { Slider, Card, CardBody, Image } from '@nextui-org/react';
+import { Button, Card, CardBody, Image, Slider } from '@nextui-org/react';
+import UploadForm from './UploadForm';
 
 function CollaborationView({ collaborationId }) {
-  const [userUploads, setUserUploads] = useState({}); // Stores uploads separated by user
-  const [currentPreviewIndices, setCurrentPreviewIndices] = useState({}); // Index for each user's slideshow
+  const [userUploads, setUserUploads] = useState({});
+  const [currentPreviewIndices, setCurrentPreviewIndices] = useState({});
 
+  // Function to fetch uploads for the collaboration, sorted by userId and timestamp
   useEffect(() => {
     const fetchUploads = async () => {
-      const uploadsQuery = query(collection(firestore, "uploads"), where("collabId", "==", collaborationId), orderBy("userId"), orderBy("timestamp", "desc"));
+      const uploadsQuery = query(
+        collection(firestore, "uploads"),
+        where("collabId", "==", collaborationId),
+        orderBy("userId"),
+        orderBy("timestamp", "desc")
+      );
       const querySnapshot = await getDocs(uploadsQuery);
       const fetchedUploads = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Separate uploads by user
+      // Organize uploads by userId
       const uploadsByUser = fetchedUploads.reduce((acc, upload) => {
         (acc[upload.userId] = acc[upload.userId] || []).push(upload);
         return acc;
       }, {});
 
       setUserUploads(uploadsByUser);
-      setCurrentPreviewIndices(Object.keys(uploadsByUser).reduce((acc, userId) => ({ ...acc, [userId]: 0 }), {}));
+      setCurrentPreviewIndices(
+        Object.keys(uploadsByUser).reduce((acc, userId) => ({ ...acc, [userId]: 0 }), {})
+      );
     };
 
     fetchUploads();
   }, [collaborationId]);
 
+  // Function to handle slider change per user
   const handleChange = (userId, value) => {
     setCurrentPreviewIndices(prev => ({
       ...prev,
@@ -33,27 +43,37 @@ function CollaborationView({ collaborationId }) {
     }));
   };
 
+  // Function to navigate back using the browser's history
+  const handleBackClick = () => {
+    window.history.back();
+  };
+
   return (
     <div>
+      <Button auto flat color="error" onClick={handleBackClick}>
+        Go Back
+      </Button>
+
+      {/* Pass collaborationId to UploadForm */}
+      <UploadForm collabId={collaborationId} />
+
+      {/* Iterate through each user's uploads to display their slideshows */}
       {Object.entries(userUploads).map(([userId, uploads]) => (
-        <div key={userId} style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            {uploads.length > 0 && (
-              <Card>
-                <CardBody>
-                  <Slider
-                    step={1}
-                    min={0}
-                    max={uploads.length - 1}
-                    value={currentPreviewIndices[userId]}
-                    onChange={(value) => handleChange(userId, value)}
-                  />
-                  <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
-                  {/* Display additional upload metadata as needed */}
-                </CardBody>
-              </Card>
-            )}
-          </div>
+        <div key={userId} style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+          {uploads.length > 0 && (
+            <Card>
+              <CardBody>
+                <Slider
+                  step={1}
+                  min={0}
+                  max={uploads.length - 1}
+                  value={currentPreviewIndices[userId]}
+                  onChange={(value) => handleChange(userId, value)}
+                />
+                <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
+              </CardBody>
+            </Card>
+          )}
         </div>
       ))}
     </div>
