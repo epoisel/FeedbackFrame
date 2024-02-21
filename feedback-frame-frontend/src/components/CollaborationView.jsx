@@ -44,20 +44,16 @@ function CollaborationView({ collaborationId, onBack }) {
   };
 
   
+  
 
   return (
     <div>
-    <Button auto flat color="error" onClick={onBack}>
-      Go Back
-    </Button>
-    <UploadForm collabId={collaborationId} />
-  
-    {/* Flex container for slideshows */}
-    <div className="flex flex-wrap justify-center gap-4">
+      <Button auto flat color="error" onClick={onBack}>Go Back</Button>
+      <UploadForm collabId={collaborationId} />
       {Object.entries(userUploads).map(([userId, uploads]) => (
-        <div key={userId} className="flex-auto md:w-1/2">
+        <div key={userId} style={{ position: 'relative', marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
           {uploads.length > 0 && (
-            <Card className="w-full">
+            <Card className="w-[50%]" style={{ position: 'relative' }}>
               <CardBody>
                 <Slider
                   step={1}
@@ -66,14 +62,14 @@ function CollaborationView({ collaborationId, onBack }) {
                   value={currentPreviewIndices[userId]}
                   onChange={(value) => handleChange(userId, value)}
                 />
-                <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" className="w-full" />
+                {/* Assuming FabricCanvas accepts an image URL prop for background */}
+                <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
               </CardBody>
             </Card>
           )}
         </div>
       ))}
     </div>
-  </div>
   );
 }
 
