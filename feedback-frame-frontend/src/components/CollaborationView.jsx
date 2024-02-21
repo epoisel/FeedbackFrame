@@ -64,9 +64,10 @@ function CollaborationView({ collaborationId, onBack }) {
                     value={currentPreviewIndices[userId]}
                     onChange={(value) => handleChange(userId, value)}
                   />
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                   <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
                   {/* Ensure FabricCanvas is positioned absolutely within CardBody */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                  
                     <FabricCanvas containerRef={uploadRefs[userId]} />
                   </div>
                 </CardBody>
