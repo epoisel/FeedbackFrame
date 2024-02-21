@@ -48,28 +48,37 @@ function CollaborationView({ collaborationId, onBack }) {
 
   return (
     <div>
-      <Button auto flat color="error" onClick={onBack}>Go Back</Button>
-      <UploadForm collabId={collaborationId} />
-      {Object.entries(userUploads).map(([userId, uploads]) => (
-        <div key={userId} style={{ position: 'relative', marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-          {uploads.length > 0 && (
-            <Card className="w-[50%]" style={{ position: 'relative' }}>
-              <CardBody>
-                <Slider
-                  step={1}
-                  min={0}
-                  max={uploads.length - 1}
-                  value={currentPreviewIndices[userId]}
-                  onChange={(value) => handleChange(userId, value)}
-                />
-                {/* Assuming FabricCanvas accepts an image URL prop for background */}
-                <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
-              </CardBody>
-            </Card>
-          )}
-        </div>
-      ))}
+    <Button auto flat color="error" onClick={onBack}>
+      Go Back
+    </Button>
+    <UploadForm collabId={collaborationId} />
+  
+    {/* Flex container for slideshows */}
+    <div className="flex justify-center gap-4">
+    {Object.entries(userUploads).map(([userId, uploads]) => (
+  <div key={userId} style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+    {uploads.length > 0 && (
+      <Card className="w-[50%]" style={{ position: 'relative' }}>
+        <CardBody style={{ position: 'relative' }}>
+          <Slider
+            step={1}
+            min={0}
+            max={uploads.length - 1}
+            value={currentPreviewIndices[userId]}
+            onChange={(value) => handleChange(userId, value)}
+          />
+          <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
+          {/* Overlay Canvas */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+            <FabricCanvas width={/* Dynamic width based on CardBody */} height={/* Dynamic height based on CardBody */} />
+          </div>
+        </CardBody>
+      </Card>
+    )}
+  </div>
+))}
     </div>
+  </div>
   );
 }
 

@@ -1,40 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { fabric } from 'fabric';
 
-const FabricCanvas = ({ width, height, imageUrl }) => {
+const FabricCanvas = ({ containerRef }) => {
   const canvasRef = useRef(null);
-  const [canvas, setCanvas] = useState(null); // Ensure this line is correctly included
 
   useEffect(() => {
-    const initializedCanvas = new fabric.Canvas(canvasRef.current, {
-      width: width,
-      height: height,
-      backgroundColor: 'transparent',
-    });
-  
-    // Load and display the image from imageUrl
-    if (imageUrl) {
-      fabric.Image.fromURL(imageUrl, (img) => {
-        // Consider scaling or positioning the image as needed
-        img.scaleToWidth(width);
-        img.scaleToHeight(height);
-        initializedCanvas.add(img); // Adds the image as an object on the canvas
-        initializedCanvas.sendToBack(img); // Ensures drawing can happen on top
-      });
-    }
-  
-    setCanvas(initializedCanvas); // This line requires setCanvas to be defined as shown above
+    let canvas = null;
+    
+    // Ensure the container and its dimensions are available
+    if (containerRef.current) {
+      const { offsetWidth: width, offsetHeight: height } = containerRef.current;
 
-    initializedCanvas.isDrawingMode = true;
-    initializedCanvas.freeDrawingBrush.width = 5;
-    initializedCanvas.freeDrawingBrush.color = "#000000";
+      canvas = new fabric.Canvas(canvasRef.current, {
+        width,
+        height,
+        backgroundColor: 'transparent',
+      });
+
+      canvas.isDrawingMode = true;
+      canvas.freeDrawingBrush.width = 5;
+      canvas.freeDrawingBrush.color = "#000000";
+    }
 
     return () => {
-      initializedCanvas.dispose();
+      if (canvas) {
+        canvas.dispose();
+      }
     };
-  }, [width, height, imageUrl]); // Depend on imageUrl if you're using it to load an image
+  }, [containerRef]); // React to changes in the containerRef, if necessary
 
-  return <canvas ref={canvasRef} />;
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />;
 };
 
 export default FabricCanvas;
