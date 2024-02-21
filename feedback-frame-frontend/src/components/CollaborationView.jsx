@@ -3,7 +3,7 @@ import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { Button, Card, CardBody, Image, Slider } from '@nextui-org/react';
 import UploadForm from './UploadForm';
-
+import FabricCanvas from './FabricCanvas';
 function CollaborationView({ collaborationId, onBack }) {
   const [userUploads, setUserUploads] = useState({});
   const [currentPreviewIndices, setCurrentPreviewIndices] = useState({});
