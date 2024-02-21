@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { fabric } from 'fabric';
 
-const FabricCanvas = ({ width, height, imageUrl }) => {
+const FabricCanvas = ({ imageUrl, width, height }) => {
   const canvasRef = useRef(null);
-  const [canvas, setCanvas] = useState(null);
 
   useEffect(() => {
     const initializedCanvas = new fabric.Canvas(canvasRef.current, {
@@ -11,15 +10,15 @@ const FabricCanvas = ({ width, height, imageUrl }) => {
       height: height,
       backgroundColor: 'transparent',
     });
-    
-    // Check if imageUrl is provided and load it
+  
+    // Load and display the image from imageUrl
     if (imageUrl) {
-      fabric.Image.fromURL(imageUrl, function(img) {
-        // Set the image as the canvas background
-        initializedCanvas.setBackgroundImage(img, initializedCanvas.renderAll.bind(initializedCanvas), {
-          scaleX: width / img.width,
-          scaleY: height / img.height,
-        });
+      fabric.Image.fromURL(imageUrl, (img) => {
+        // Consider scaling or positioning the image as needed
+        img.scaleToWidth(width);
+        img.scaleToHeight(height);
+        initializedCanvas.add(img); // Adds the image as an object on the canvas
+        initializedCanvas.sendToBack(img); // Ensures drawing can happen on top
       });
     }
   
@@ -32,7 +31,7 @@ const FabricCanvas = ({ width, height, imageUrl }) => {
     return () => {
       initializedCanvas.dispose();
     };
-  }, [width, height, imageUrl]);
+  }, [width, height, imageUrl]); 
 
   return <canvas ref={canvasRef} />;
 };
