@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 
-const FabricCanvas = ({ imageUrl, width, height }) => {
+const FabricCanvas = ({ width, height, imageUrl }) => {
   const canvasRef = useRef(null);
+  const [canvas, setCanvas] = useState(null); // Ensure this line is correctly included
 
   useEffect(() => {
     const initializedCanvas = new fabric.Canvas(canvasRef.current, {
@@ -22,16 +23,16 @@ const FabricCanvas = ({ imageUrl, width, height }) => {
       });
     }
   
-    setCanvas(initializedCanvas);
-  
+    setCanvas(initializedCanvas); // This line requires setCanvas to be defined as shown above
+
     initializedCanvas.isDrawingMode = true;
     initializedCanvas.freeDrawingBrush.width = 5;
     initializedCanvas.freeDrawingBrush.color = "#000000";
-  
+
     return () => {
       initializedCanvas.dispose();
     };
-  }, [width, height, imageUrl]); 
+  }, [width, height, imageUrl]); // Depend on imageUrl if you're using it to load an image
 
   return <canvas ref={canvasRef} />;
 };
