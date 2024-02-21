@@ -47,18 +47,17 @@ function CollaborationView({ collaborationId, onBack }) {
 
   return (
     <div>
-      <Button auto flat color="error" onClick={onBack}>
-        Go Back
-      </Button>
-
-      {/* Pass collaborationId to UploadForm */}
-      <UploadForm collabId={collaborationId} />
-
-      {/* Iterate through each user's uploads to display their slideshows */}
+    <Button auto flat color="error" onClick={onBack}>
+      Go Back
+    </Button>
+    <UploadForm collabId={collaborationId} />
+  
+    {/* Flex container for slideshows */}
+    <div className="flex flex-wrap justify-center gap-4">
       {Object.entries(userUploads).map(([userId, uploads]) => (
-        <div key={userId} style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+        <div key={userId} className="flex-auto md:w-1/2">
           {uploads.length > 0 && (
-            <Card className="w-[50%] h-[50]">
+            <Card className="w-full">
               <CardBody>
                 <Slider
                   step={1}
@@ -67,13 +66,14 @@ function CollaborationView({ collaborationId, onBack }) {
                   value={currentPreviewIndices[userId]}
                   onChange={(value) => handleChange(userId, value)}
                 />
-                <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
+                <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" className="w-full" />
               </CardBody>
             </Card>
           )}
         </div>
       ))}
     </div>
+  </div>
   );
 }
 
