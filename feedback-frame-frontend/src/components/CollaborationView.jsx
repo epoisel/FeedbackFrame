@@ -52,12 +52,11 @@ function CollaborationView({ collaborationId, onBack }) {
       <Button auto flat color="error" onClick={onBack}>Go Back</Button>
       <UploadForm collabId={collaborationId} />
       <div className="flex flex-wrap justify-center gap-4">
-      {Object.entries(userUploads).map(([userId, uploads]) => (
-          <div key={userId} className="relative w-full md:w-[50%]" ref={uploadRefs[userId]}>
+        {Object.entries(userUploads).map(([userId, uploads]) => (
+          <div key={userId} className="relative w-full md:w-[50%]">
             {uploads.length > 0 && (
               <Card>
                 <CardBody>
-                  {/* Slider remains outside and above the dedicated image container */}
                   <Slider
                     step={1}
                     min={0}
@@ -65,14 +64,8 @@ function CollaborationView({ collaborationId, onBack }) {
                     value={currentPreviewIndices[userId]}
                     onChange={(value) => handleChange(userId, value)}
                   />
-                  {/* Dedicated container for the image and FabricCanvas */}
-                  <div className="relative" style={{ width: '100%', height: 'auto' }}> {/* Adjust height as necessary */}
-                    <Image src={uploads[currentPreviewIndices[userId]].artworkUrl} alt="Artwork preview" width="100%" />
-                    {/* FabricCanvas overlays the image within this container */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                      <FabricCanvas containerRef={uploadRefs[userId]} />
-                    </div>
-                  </div>
+                  {/* Replace the Image component with FabricCanvas */}
+                  <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
                 </CardBody>
               </Card>
             )}
