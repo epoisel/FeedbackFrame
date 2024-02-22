@@ -52,10 +52,9 @@ function CollaborationView({ collaborationId, onBack }) {
       <Button auto flat color="error" onClick={onBack}>Go Back</Button>
       <UploadForm collabId={collaborationId} />
       {/* Flex container adjusted for responsive design */}
-      <div className="flex flex-wrap justify-center gap-4">
-        {Object.entries(userUploads).map(([userId, uploads]) => (
-          // Updated classes for responsive layout
-          <div key={userId} className="p-2 w-full md:w-1/2">
+      <div className="flex flex-wrap justify-center md:justify-start gap-4">
+  {Object.entries(userUploads).map(([userId, uploads]) => (
+    <div key={userId} className="p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
             {uploads.length > 0 && (
               <Card>
                 <CardBody>
