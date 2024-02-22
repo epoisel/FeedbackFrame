@@ -51,9 +51,11 @@ function CollaborationView({ collaborationId, onBack }) {
     <div>
       <Button auto flat color="error" onClick={onBack}>Go Back</Button>
       <UploadForm collabId={collaborationId} />
+      {/* Flex container adjusted for responsive design */}
       <div className="flex flex-wrap justify-center gap-4">
         {Object.entries(userUploads).map(([userId, uploads]) => (
-          <div key={userId} className="relative w-full md:w-[50%]">
+          // Updated classes for responsive layout
+          <div key={userId} className="p-2 w-full md:w-1/2">
             {uploads.length > 0 && (
               <Card>
                 <CardBody>
@@ -64,8 +66,10 @@ function CollaborationView({ collaborationId, onBack }) {
                     value={currentPreviewIndices[userId]}
                     onChange={(value) => handleChange(userId, value)}
                   />
-                  {/* Replace the Image component with FabricCanvas */}
-                  <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
+                  <div className="relative aspect-w-16 aspect-h-9">
+                    {/* Aspect ratio container for the canvas */}
+                    <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
+                  </div>
                 </CardBody>
               </Card>
             )}

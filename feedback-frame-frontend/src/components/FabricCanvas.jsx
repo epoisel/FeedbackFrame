@@ -5,32 +5,50 @@ const FabricCanvas = ({ imageUrl }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const canvas = new fabric.Canvas(canvasRef.current);
+    const canvas = new fabric.Canvas(canvasRef.current, {
+      backgroundColor: 'transparent',
+    });
+
+    function resizeCanvas() {
+      canvas.setWidth(canvasRef.current.clientWidth);
+      canvas.setHeight(canvasRef.current.clientHeight);
+    }
+
+    // Adjust canvas size on window resize to maintain responsiveness
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     if (imageUrl) {
-      fabric.Image.fromURL(imageUrl, (img) => {
-        // Example: Scale the image to fit the canvas width
-        img.scaleToWidth(canvas.width);
-        img.set({
-          left: 0,
-          top: 0,
-          selectable: false, // Optional: make the image non-selectable
+      fabric.Image.fromURL(imageUrl, function(img) {
+        // Scale image to fit the canvas while maintaining aspect ratio
+        const imgRatio = img.width / img.height;
+        const canvasRatio = canvas.width / canvas.height;
+        let scale;
+        if (imgRatio > canvasRatio) {
+          scale = canvas.width / img.width;
+        } else {
+          scale = canvas.height / img.height;
+        }
+        img.scale(scale).set({
+          left: (canvas.width - img.width * scale) / 2,
+          top: (canvas.height - img.height * scale) / 2,
+          selectable: false,
         });
-        canvas.add(img); // Add the image to the canvas
-        canvas.sendToBack(img); // Ensure the image is behind any annotations
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
       });
     }
 
-    // Enable drawing mode
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 2; // Example brush width
-    canvas.freeDrawingBrush.color = 'blue'; // Example brush color
+    canvas.freeDrawingBrush.width = 2;
+    canvas.freeDrawingBrush.color = 'blue';
 
     return () => {
-      canvas.dispose(); // Clean up on component unmount
+      window.removeEventListener('resize', resizeCanvas);
+      canvas.dispose();
     };
-  }, [imageUrl]); // Re-run effect if imageUrl changes
+  }, [imageUrl]);
 
-  return <canvas ref={canvasRef} />;
+  return <canvas ref={canvasRef} className="w-full h-full" />;
 };
 
 export default FabricCanvas;
