@@ -53,8 +53,9 @@ function CollaborationView({ collaborationId, onBack }) {
       <UploadForm collabId={collaborationId} />
       {/* Flex container adjusted for responsive design */}
       <div className="flex flex-wrap justify-center md:justify-start gap-4">
-  {Object.entries(userUploads).map(([userId, uploads]) => (
-    <div key={userId} className="p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
+        {Object.entries(userUploads).map(([userId, uploads]) => (
+      // On small screens, take full width; on medium screens and above, take half the width.
+        <div key={userId} className="p-2 w-full md:w-1/2">
             {uploads.length > 0 && (
               <Card>
                 <CardBody>
