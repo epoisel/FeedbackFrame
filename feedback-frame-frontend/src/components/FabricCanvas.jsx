@@ -6,39 +6,31 @@ const FabricCanvas = ({ imageUrl }) => {
 
   useEffect(() => {
     const canvas = new fabric.Canvas(canvasRef.current);
-
-    // Dynamically set canvas dimensions based on the image or container
-    const setCanvasDimensions = (img) => {
-      canvas.setWidth(img.width);
-      canvas.setHeight(img.height);
-      canvas.calcOffset(); // Recalculate canvas offset after resizing
-    };
-
     if (imageUrl) {
       fabric.Image.fromURL(imageUrl, (img) => {
-        // Optionally, you can scale the image to fit the canvas or container
+        // Example: Scale the image to fit the canvas width
+        img.scaleToWidth(canvas.width);
         img.set({
           left: 0,
           top: 0,
-          selectable: false, // Make image non-selectable if only annotations should be interactive
+          selectable: false, // Optional: make the image non-selectable
         });
-        setCanvasDimensions(img);
-        canvas.backgroundImage = img; // Use as background image to allow drawing over it
-        canvas.requestRenderAll(); // Render the canvas to display the background image
+        canvas.add(img); // Add the image to the canvas
+        canvas.sendToBack(img); // Ensure the image is behind any annotations
       });
     }
 
-    // Initialize drawing settings
+    // Enable drawing mode
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 5;
-    canvas.freeDrawingBrush.color = "#000000";
+    canvas.freeDrawingBrush.width = 2; // Example brush width
+    canvas.freeDrawingBrush.color = 'blue'; // Example brush color
 
     return () => {
-      canvas.dispose(); // Clean up canvas when component unmounts
+      canvas.dispose(); // Clean up on component unmount
     };
-  }, [imageUrl]); // Re-initialize when imageUrl changes
+  }, [imageUrl]); // Re-run effect if imageUrl changes
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+  return <canvas ref={canvasRef} />;
 };
 
 export default FabricCanvas;
