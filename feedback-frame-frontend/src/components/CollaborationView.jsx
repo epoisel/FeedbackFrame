@@ -67,9 +67,11 @@ function CollaborationView({ collaborationId, onBack }) {
                     onChange={(value) => handleChange(userId, value)}
                   />
                   <div className="relative aspect-w-16 aspect-h-9">
-                    {/* Aspect ratio container for the canvas */}
+                  {/* Ensuring the canvas container is responsive */}
+                  <div className="w-full h-full">
                     <FabricCanvas imageUrl={uploads[currentPreviewIndices[userId]].artworkUrl} />
                   </div>
+                </div>
                 </CardBody>
               </Card>
             )}
