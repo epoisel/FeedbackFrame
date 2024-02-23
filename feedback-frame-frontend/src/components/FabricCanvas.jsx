@@ -6,52 +6,44 @@ const FabricCanvas = ({ imageUrl }) => {
 
   useEffect(() => {
     let canvas = new fabric.Canvas(canvasRef.current);
-
+  
     // Function to update the canvas size based on its container
     const updateCanvasSize = () => {
       const container = canvasRef.current.parentElement;
-      canvas.setWidth(container.clientWidth);
-      canvas.setHeight(container.clientHeight);
+      canvas.setWidth(container.clientWidth); // Adjust canvas width to fill the container
+      canvas.setHeight(container.clientHeight); // Adjust canvas height to fill the container
       canvas.calcOffset();
     };
-
-    // Ensure canvas size matches the container, especially after window resizes
+  
+    // Adjust canvas size on window resize and initial load
     window.addEventListener('resize', updateCanvasSize);
     updateCanvasSize();
-
+  
     if (imageUrl) {
       fabric.Image.fromURL(imageUrl, (img) => {
-        // Scale the image to fit the canvas while maintaining its aspect ratio
-        const imgScaleFactor = Math.max(
-          canvas.width / img.width,
-          canvas.height / img.height
-        );
+        // Scale the image to fully cover the canvas dimensions
+        const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
         img.set({
-          scaleX: imgScaleFactor,
-          scaleY: imgScaleFactor,
+          scaleX: scale,
+          scaleY: scale,
           originX: 'center',
           originY: 'center',
-          top: canvas.height / 2,
           left: canvas.width / 2,
+          top: canvas.height / 2,
           selectable: false,
         });
         canvas.add(img);
-        canvas.centerObject(img);
         canvas.renderAll();
       });
     }
-
+  
+    // Enable drawing mode
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = 2;
     canvas.freeDrawingBrush.color = 'blue';
-
+  
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
       canvas.dispose();
     };
   }, [imageUrl]);
-
-  return <canvas ref={canvasRef} className="w-full h-full absolute top-0 left-0" />;
-};
-
-export default FabricCanvas;
