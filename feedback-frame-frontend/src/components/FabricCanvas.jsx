@@ -6,23 +6,25 @@ const FabricCanvas = ({ imageUrl }) => {
 
   useEffect(() => {
     let canvas = new fabric.Canvas(canvasRef.current);
-  
-    // Function to update the canvas size based on its container
+    console.log('Canvas initialized.');
+
     const updateCanvasSize = () => {
       const container = canvasRef.current.parentElement;
-      canvas.setWidth(container.clientWidth); // Adjust canvas width to fill the container
-      canvas.setHeight(container.clientHeight); // Adjust canvas height to fill the container
+      console.log(`Container dimensions: width=${container.clientWidth}, height=${container.clientHeight}`);
+      canvas.setWidth(container.clientWidth);
+      canvas.setHeight(container.clientHeight);
       canvas.calcOffset();
+      console.log(`Canvas dimensions set: width=${canvas.width}, height=${canvas.height}`);
     };
-  
-    // Adjust canvas size on window resize and initial load
+
     window.addEventListener('resize', updateCanvasSize);
     updateCanvasSize();
-  
+
     if (imageUrl) {
+      console.log(`Loading image: ${imageUrl}`);
       fabric.Image.fromURL(imageUrl, (img) => {
-        // Scale the image to fully cover the canvas dimensions
         const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+        console.log(`Image loaded. Original dimensions: width=${img.width}, height=${img.height}, scale=${scale}`);
         img.set({
           scaleX: scale,
           scaleY: scale,
@@ -34,20 +36,19 @@ const FabricCanvas = ({ imageUrl }) => {
         });
         canvas.add(img);
         canvas.renderAll();
+        console.log('Image added to canvas and scaled.');
       });
     }
-  
-    // Enable drawing mode
+
     canvas.isDrawingMode = true;
-    canvas.freeDrawingBrush.width = 2;
-    canvas.freeDrawingBrush.color = 'blue';
-  
+    console.log('Drawing mode enabled.');
+
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
       canvas.dispose();
+      console.log('Canvas disposed.');
     };
   }, [imageUrl]);
-  
 
   return <canvas ref={canvasRef} className="w-full h-full absolute top-0 left-0" />;
 };
