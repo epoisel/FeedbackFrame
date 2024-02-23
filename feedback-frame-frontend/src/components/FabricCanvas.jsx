@@ -10,9 +10,12 @@ const FabricCanvas = ({ imageUrl }) => {
 
     // Update canvas size to match the container's size
     const updateCanvasSize = () => {
-      canvas.setWidth(container.clientWidth);
-      canvas.setHeight(container.clientHeight);
-      canvas.calcOffset();
+        console.log(`Container size before update: width=${container.clientWidth}px, height=${container.clientHeight}px`);
+        canvas.setWidth(container.clientWidth);
+        canvas.setHeight(container.clientHeight);
+        canvas.calcOffset();
+        console.log(`Canvas size updated: width=${canvas.width}px, height=${canvas.height}px`);
+      
     };
 
     // Initial size update
@@ -28,8 +31,8 @@ const FabricCanvas = ({ imageUrl }) => {
       fabric.Image.fromURL(imageUrl, (img) => {
         const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
         img.set({
-          scaleX: 1,
-          scaleY: 1,
+          scaleX: scale,
+          scaleY: scale,
           originX: 'center',
           originY: 'center',
           left: canvas.width / 2,
