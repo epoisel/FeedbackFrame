@@ -28,12 +28,12 @@ const FabricCanvas = ({ imageUrl }) => {
       fabric.Image.fromURL(imageUrl, (img) => {
         const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
         img.set({
-          scaleX: scale,
-          scaleY: scale,
+          scaleX: 1,
+          scaleY: 1,
           originX: 'center',
           originY: 'center',
-          left: canvas.width,
-          top: canvas.height,
+          left: canvas.width / 2,
+          top: canvas.height / 2,
           selectable: false,
         });
         canvas.add(img);
