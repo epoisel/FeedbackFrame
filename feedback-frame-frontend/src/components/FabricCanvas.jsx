@@ -32,8 +32,8 @@ const FabricCanvas = ({ imageUrl }) => {
           scaleY: scale,
           originX: 'center',
           originY: 'center',
-          left: canvas.width / 2,
-          top: canvas.height / 2,
+          left: 0,
+          top: 0,
           selectable: false,
         });
         canvas.add(img);
