@@ -5,26 +5,28 @@ const FabricCanvas = ({ imageUrl }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    let canvas = new fabric.Canvas(canvasRef.current);
-    console.log('Canvas initialized.');
+    const canvas = new fabric.Canvas(canvasRef.current);
+    const container = canvasRef.current.parentElement;
 
+    // Update canvas size to match the container's size
     const updateCanvasSize = () => {
-      const container = canvasRef.current.parentElement;
-      console.log(`Container dimensions: width=${container.clientWidth}, height=${container.clientHeight}`);
       canvas.setWidth(container.clientWidth);
       canvas.setHeight(container.clientHeight);
       canvas.calcOffset();
-      console.log(`Canvas dimensions set: width=${canvas.width}, height=${canvas.height}`);
     };
 
-    window.addEventListener('resize', updateCanvasSize);
+    // Initial size update
     updateCanvasSize();
 
+    // Observe size changes
+    const observer = new ResizeObserver(() => {
+      updateCanvasSize();
+    });
+    observer.observe(container);
+
     if (imageUrl) {
-      console.log(`Loading image: ${imageUrl}`);
       fabric.Image.fromURL(imageUrl, (img) => {
         const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-        console.log(`Image loaded. Original dimensions: width=${img.width}, height=${img.height}, scale=${scale}`);
         img.set({
           scaleX: scale,
           scaleY: scale,
@@ -36,17 +38,13 @@ const FabricCanvas = ({ imageUrl }) => {
         });
         canvas.add(img);
         canvas.renderAll();
-        console.log('Image added to canvas and scaled.');
       });
     }
 
-    canvas.isDrawingMode = true;
-    console.log('Drawing mode enabled.');
-
+    // Cleanup on component unmount
     return () => {
-      window.removeEventListener('resize', updateCanvasSize);
+      observer.disconnect();
       canvas.dispose();
-      console.log('Canvas disposed.');
     };
   }, [imageUrl]);
 
